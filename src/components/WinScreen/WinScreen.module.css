@@ -1,0 +1,61 @@
+.wrapper {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #1a0a2e 0%, #0d0015 100%);
+}
+
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 1.5rem;
+  padding: 3rem 3.5rem;
+  text-align: center;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  min-width: 320px;
+}
+
+.icon { font-size: 4rem; margin-bottom: 0.5rem; }
+
+.titleWin {
+  font-size: 2.2rem; font-weight: 800; margin: 0 0 0.4rem;
+  background: linear-gradient(90deg, #c4b5fd, #f9a8d4);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.titleFail { font-size: 2rem; font-weight: 700; margin: 0 0 0.4rem; color: #fca5a5; }
+
+.sub { color: rgba(255,255,255,0.45); margin: 0 0 1.5rem; }
+
+.stars { font-size: 2.5rem; margin-bottom: 1.5rem; }
+.starOn  { color: #fbbf24; }
+.starOff { color: rgba(255,255,255,0.15); }
+
+.stats {
+  display: flex; gap: 2rem; justify-content: center;
+  margin-bottom: 2rem;
+}
+.stat { display: flex; flex-direction: column; gap: 0.2rem; }
+.statLabel { font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+.statVal { font-size: 1.4rem; font-weight: 700; font-family: monospace; color: #c4b5fd; }
+
+.actions { display: flex; flex-direction: column; gap: 0.65rem; }
+
+.btnPrimary {
+  padding: 0.8rem; background: linear-gradient(135deg,#7c3aed,#a855f7);
+  border: none; border-radius: 0.75rem; color: #fff;
+  font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+}
+.btnPrimary:hover { opacity: 0.85; }
+
+.btnSecondary {
+  padding: 0.75rem; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 0.75rem;
+  color: rgba(255,255,255,0.85); font-size: 0.95rem; cursor: pointer; transition: background 0.15s;
+}
+.btnSecondary:hover { background: rgba(255,255,255,0.14); }
+
+.btnGhost {
+  padding: 0.65rem; background: none; border: none;
+  color: rgba(255,255,255,0.35); font-size: 0.85rem; cursor: pointer; transition: color 0.15s;
+}
+.btnGhost:hover { color: rgba(255,255,255,0.6); }

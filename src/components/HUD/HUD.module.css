@@ -1,0 +1,90 @@
+.hud {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: rgba(5, 3, 10, 0.88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(200,184,154,0.12);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.25rem;
+  z-index: 100;
+  font-family: 'Georgia', serif;
+  color: #c8b89a;
+}
+
+.timer {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 80px;
+  color: #c8b89a;
+  letter-spacing: 2px;
+}
+
+.urgent {
+  color: #f87171;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.scenes {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.sceneBtn {
+  padding: 0.3rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(200,184,154,0.2);
+  border-radius: 2px;
+  color: rgba(200,184,154,0.5);
+  font-size: 0.8rem;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sceneBtn:hover {
+  background: rgba(200,184,154,0.08);
+  color: #c8b89a;
+  border-color: rgba(200,184,154,0.4);
+}
+.sceneBtn.active {
+  background: rgba(200,184,154,0.12);
+  border-color: rgba(200,184,154,0.6);
+  color: #e8d5b7;
+}
+
+.clueCount {
+  font-size: 0.82rem;
+  color: rgba(200,184,154,0.5);
+  white-space: nowrap;
+  letter-spacing: 1px;
+}
+
+.quit {
+  background: transparent;
+  border: 1px solid rgba(200,80,80,0.3);
+  color: rgba(200,120,120,0.8);
+  padding: 0.3rem 0.9rem;
+  border-radius: 2px;
+  font-size: 0.8rem;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.quit:hover {
+  background: rgba(200,38,38,0.15);
+  border-color: rgba(200,80,80,0.6);
+  color: #fca5a5;
+}

@@ -1,0 +1,74 @@
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+}
+
+.box {
+  background: #140828;
+  border: 1px solid rgba(167,139,250,0.25);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  width: min(480px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 0 60px rgba(124,58,237,0.2);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.title { font-size: 1.2rem; font-weight: 700; color: #e2d9f3; margin: 0; }
+
+.closeBtn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+.closeBtn:hover { background: rgba(255,255,255,0.15); }
+
+.desc {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+
+.solved {
+  text-align: center;
+  color: #86efac;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 1.5rem;
+}
+
+.clueHints {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.clueLabel { font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+.clueTag {
+  font-size: 0.75rem;
+  background: rgba(124,58,237,0.15);
+  border: 1px solid rgba(124,58,237,0.25);
+  color: #c4b5fd;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
