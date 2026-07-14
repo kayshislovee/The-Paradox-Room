@@ -97,7 +97,7 @@ export function Splash() {
           marginBottom: 4,
           textShadow: '0 2px 12px rgba(0,0,0,0.8)',
         }}>
-          the
+          THE
         </div>
 
         {/* Judul utama */}
@@ -110,7 +110,7 @@ export function Splash() {
           transition: 'opacity 1.2s ease, transform 1.2s ease',
           textShadow: '0 4px 30px rgba(0,0,0,0.9), 0 0 60px rgba(200,160,100,0.2)',
         }}>
-          ESCAPE
+          PARADOX
         </div>
 
         {/* Subjudul */}
@@ -123,7 +123,7 @@ export function Splash() {
           textShadow: '0 2px 12px rgba(0,0,0,0.8)',
           marginTop: 4,
         }}>
-          room
+          ROOM
         </div>
 
         {/* Garis dekoratif */}

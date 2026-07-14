@@ -46,7 +46,7 @@ export default function App() {
     case 'main_menu':    return <Splash />;
     case 'level_select': return <LevelSelect onStartLevel={handleStartLevel} />;
     case 'gameplay':     return <GameScene />;
-    case 'win':          return <WinScreen />;
+    case 'win': return <WinScreen onStartLevel={handleStartLevel} />;
     case 'settings':     return <Settings />;
     default:             return <Splash />;
   }

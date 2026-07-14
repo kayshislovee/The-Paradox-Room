@@ -3,8 +3,12 @@ import { LEVELS } from '../../data/levels';
 import { formatTime } from '../../hooks/useTimer';
 import styles from './WinScreen.module.css';
 
-export function WinScreen() {
-  const { currentLevelId, timeElapsed, levelProgress, startLevel, goTo } = useGameStore();
+interface Props {
+  onStartLevel: (levelId: string) => void;
+}
+
+export function WinScreen({ onStartLevel }: Props) {
+  const { currentLevelId, timeElapsed, levelProgress, goTo } = useGameStore();
 
   const level = LEVELS.find((l) => l.id === currentLevelId);
   const progress = currentLevelId ? levelProgress[currentLevelId] : null;
@@ -19,13 +23,13 @@ export function WinScreen() {
       <div className={styles.card}>
         {isTimeout ? (
           <>
-            <div className={styles.icon}>⏰</div>
+            <div className={styles.icon}></div>
             <h2 className={styles.titleFail}>Waktu Habis!</h2>
             <p className={styles.sub}>Kamu tidak berhasil kabur tepat waktu.</p>
           </>
         ) : (
           <>
-            <div className={styles.icon}>🏆</div>
+            <div className={styles.icon}></div>
             <h2 className={styles.titleWin}>BERHASIL KABUR!</h2>
             <p className={styles.sub}>{level?.title}</p>
 
@@ -49,19 +53,25 @@ export function WinScreen() {
         )}
 
         <div className={styles.actions}>
-          <button className={styles.btnSecondary} onClick={() => currentLevelId && startLevel(currentLevelId)}>
-            🔄 Coba Lagi
+          <button
+            className={styles.btnSecondary}
+            onClick={() => currentLevelId && onStartLevel(currentLevelId)}
+          >
+             Coba Lagi
           </button>
           {nextLevel && !isTimeout && (
-            <button className={styles.btnPrimary} onClick={() => startLevel(nextLevel.id)}>
-              ▶ Level Berikutnya
+            <button
+              className={styles.btnPrimary}
+              onClick={() => onStartLevel(nextLevel.id)}  
+            >
+               Level Berikutnya
             </button>
           )}
           <button className={styles.btnSecondary} onClick={() => goTo('level_select')}>
-            📋 Pilih Level
+             Pilih Level
           </button>
-          <button className={styles.btnGhost} onClick={() => goTo('main_menu')}>
-            🏠 Menu Utama
+          <button className={styles.btnGhost} onClick={() => goTo('splash')}>
+             Menu Utama
           </button>
         </div>
       </div>
