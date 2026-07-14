@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { MetalButton } from '../UI/MetalButton';
+import { playMusic } from '../../hooks/useMusic';
 
 type Phase = 'splash' | 'transitioning' | 'menu';
-// Import langsung tanpa hook
-let menuAudio: HTMLAudioElement | null = null;
 
 export function Splash() {
   const goTo = useGameStore((s) => s.goTo);
@@ -14,6 +13,27 @@ export function Splash() {
   const [pressVisible, setPressVisible] = useState(false);
   const [buttonsVisible, setButtonsVisible] = useState(false);
 
+  // Mulai musik saat pertama kali ada interaksi
+  useEffect(() => {
+    const startMusic = () => {
+      playMusic('/audio/menu_music.mp3', 0.7);
+      window.removeEventListener('click', startMusic);
+      window.removeEventListener('keydown', startMusic);
+      window.removeEventListener('touchstart', startMusic);
+    };
+
+    window.addEventListener('click', startMusic);
+    window.addEventListener('keydown', startMusic);
+    window.addEventListener('touchstart', startMusic);
+
+    return () => {
+      window.removeEventListener('click', startMusic);
+      window.removeEventListener('keydown', startMusic);
+      window.removeEventListener('touchstart', startMusic);
+    };
+  }, []);
+
+  // Animasi judul muncul
   useEffect(() => {
     const t1 = setTimeout(() => setTitleVisible(true), 500);
     const t2 = setTimeout(() => setSubVisible(true), 1200);
@@ -23,15 +43,7 @@ export function Splash() {
 
   const handlePress = () => {
     if (phase !== 'splash') return;
-
-    // Mulai musik saat user pertama kali interaksi
-    if (!menuAudio) {
-      menuAudio = new Audio('/audio/menu_music.mp3');
-      menuAudio.loop = true;
-      menuAudio.volume = 0.7;
-      menuAudio.play().catch(() => {});
-    }
-
+    playMusic('/audio/menu_music.mp3', 0.7);
     setPhase('transitioning');
     setPressVisible(false);
     setTimeout(() => {
@@ -85,7 +97,7 @@ export function Splash() {
           marginBottom: 4,
           textShadow: '0 2px 12px rgba(0,0,0,0.8)',
         }}>
-          THE
+          the
         </div>
 
         {/* Judul utama */}
@@ -98,7 +110,7 @@ export function Splash() {
           transition: 'opacity 1.2s ease, transform 1.2s ease',
           textShadow: '0 4px 30px rgba(0,0,0,0.9), 0 0 60px rgba(200,160,100,0.2)',
         }}>
-          PARADOX
+          ESCAPE
         </div>
 
         {/* Subjudul */}
@@ -111,7 +123,7 @@ export function Splash() {
           textShadow: '0 2px 12px rgba(0,0,0,0.8)',
           marginTop: 4,
         }}>
-          ROOM
+          room
         </div>
 
         {/* Garis dekoratif */}
@@ -131,21 +143,20 @@ export function Splash() {
         </div>
 
         {/* Press any button */}
-       {/* Press any button */}
-{phase === 'splash' && (
-  <div style={{
-    fontFamily: "'Georgia', serif",
-    fontSize: 16, color: '#c8b89a', letterSpacing: 4,
-    marginTop: 32,
-    opacity: pressVisible ? 1 : 0,
-    transition: 'opacity 0.4s ease',
-    animation: pressVisible ? 'pressGlow 2s ease-in-out infinite' : 'none',
-    textShadow: '0 0 10px rgba(200,184,154,0.5)',
-    pointerEvents: 'none',
-  }}>
-    press any button
-  </div>
-)}
+        {phase === 'splash' && (
+          <div style={{
+            fontFamily: "'Georgia', serif",
+            fontSize: 16, color: '#c8b89a', letterSpacing: 4,
+            marginTop: 32,
+            opacity: pressVisible ? 1 : 0,
+            transition: 'opacity 0.4s ease',
+            animation: pressVisible ? 'pressGlow 2s ease-in-out infinite' : 'none',
+            textShadow: '0 0 10px rgba(200,184,154,0.5)',
+            pointerEvents: 'none',
+          }}>
+            press any button
+          </div>
+        )}
       </div>
 
       {/* Tombol menu */}
