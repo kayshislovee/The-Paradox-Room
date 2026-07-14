@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { useMusic } from '../../hooks/useMusic';
 import { MetalButton } from '../UI/MetalButton';
 
 type Phase = 'splash' | 'transitioning' | 'menu';
+// Import langsung tanpa hook
+let menuAudio: HTMLAudioElement | null = null;
 
 export function Splash() {
   const goTo = useGameStore((s) => s.goTo);
@@ -12,7 +13,6 @@ export function Splash() {
   const [subVisible, setSubVisible] = useState(false);
   const [pressVisible, setPressVisible] = useState(false);
   const [buttonsVisible, setButtonsVisible] = useState(false);
-  useMusic('/audio/menu_music.mp3');
 
   useEffect(() => {
     const t1 = setTimeout(() => setTitleVisible(true), 500);
@@ -23,6 +23,15 @@ export function Splash() {
 
   const handlePress = () => {
     if (phase !== 'splash') return;
+
+    // Mulai musik saat user pertama kali interaksi
+    if (!menuAudio) {
+      menuAudio = new Audio('/audio/menu_music.mp3');
+      menuAudio.loop = true;
+      menuAudio.volume = 0.7;
+      menuAudio.play().catch(() => {});
+    }
+
     setPhase('transitioning');
     setPressVisible(false);
     setTimeout(() => {

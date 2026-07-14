@@ -9,8 +9,16 @@ export function useMusic(src: string, defaultVolume?: number) {
   const musicMuted = useSettingsStore((s) => s.musicMuted);
 
   useEffect(() => {
+    if (!src) {
+      currentAudio?.pause();
+      currentAudio = null;
+      currentSrc = '';
+      return;
+    }
+
     if (currentSrc === src && currentAudio) {
-      if (currentAudio.paused) {
+      // Sudah ada audio yang jalan, jangan restart
+      if (currentAudio.paused && !musicMuted) {
         currentAudio.play().catch(() => {});
       }
       return;
@@ -28,15 +36,14 @@ export function useMusic(src: string, defaultVolume?: number) {
     currentSrc = src;
   }, [src]);
 
-  // Update volume/mute setiap kali berubah
   useEffect(() => {
     if (!currentAudio) return;
     if (musicMuted) {
       currentAudio.volume = 0;
-      currentAudio.pause(); // ← pause saat mute
+      currentAudio.pause();
     } else {
       currentAudio.volume = defaultVolume ?? musicVolume;
-      currentAudio.play().catch(() => {}); // ← play lagi saat unmute
+      currentAudio.play().catch(() => {});
     }
   }, [musicMuted, musicVolume, defaultVolume]);
 }
