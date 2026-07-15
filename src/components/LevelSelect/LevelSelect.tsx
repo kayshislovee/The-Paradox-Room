@@ -35,14 +35,14 @@ export function LevelSelect({ onStartLevel }: Props) {
             color: '#c8b89a', fontSize: 13, letterSpacing: 6,
             textTransform: 'uppercase', marginBottom: 8, opacity: 0.7,
           }}>
-            select
+            Select
           </div>
           <div style={{
             color: '#e8d5b7', fontSize: 42, fontWeight: 700,
             letterSpacing: 6, textTransform: 'uppercase',
             textShadow: '0 4px 20px rgba(0,0,0,0.9)',
           }}>
-            LEVEL
+            Map
           </div>
           <div style={{
             display: 'flex', alignItems: 'center',
@@ -59,7 +59,14 @@ export function LevelSelect({ onStartLevel }: Props) {
         </div>
 
         {/* Level cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 12,
+  overflowY: 'auto',        // ← tambahkan ini
+  maxHeight: '60vh',        // ← tambahkan ini
+  paddingRight: 8,          // ← biar scrollbar tidak nutup konten
+}}>
           {LEVELS.map((level, idx) => {
             const progress = levelProgress[level.id];
             const stars = progress?.stars ?? 0;

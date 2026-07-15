@@ -248,4 +248,262 @@ const LEVEL_2: Level = {
   exitPuzzleId: 'puzzle_exit_keypad',
 };
 
-export const LEVELS: Level[] = [LEVEL_1, LEVEL_2];
+const LEVEL_3: Level = {
+  id: 'level_3',
+  title: 'Perpustakaan',
+  description: 'Terjebak di perpustakaan misterius. Baca catatan yang tersebar dan temukan kode untuk membuka pintu!',
+  thumbnail: '',
+  timeLimit: 480,
+  starThresholds: [360, 180, 30],
+  music: '/audio/level3_music.mp3',
+
+  scenes: [
+    {
+      id: 'scene_library',
+      label: 'Perpustakaan',
+      backgroundImage: '/backgrounds/library.png',
+      hotspots: [
+        // Notes kiri
+        {
+          id: 'hs_note_left',
+          x: 13,
+          y: 30,
+          width: 6,
+          height: 16,
+          cursor: 'zoom-in',
+          action: {
+            type: 'open_note',
+            image: '/notes/notekiri.png',
+          },
+        },
+
+        // Notes kanan
+        {
+          id: 'hs_note_right',
+          x: 77,
+          y: 33,
+          width: 7,
+          height: 16,
+          cursor: 'zoom-in',
+          action: {
+            type: 'open_note',
+            image: '/notes/notekanan.png',
+          },
+        },
+
+        // Keypad
+        {
+          id: 'hs_keypad_library',
+          x: 87,
+          y: 45,
+          width: 7,
+          height: 20,
+          cursor: 'pointer',
+          action: {
+            type: 'open_puzzle',
+            puzzleId: 'puzzle_library_door',
+          },
+        },
+
+        // Pintu (muncul setelah puzzle solved)
+        {
+          id: 'hs_door_library',
+          x: 82,
+          y: 5,
+          width: 16,
+          height: 88,
+          cursor: 'pointer',
+          action: {
+            type: 'message',
+            text: ' Pintu terbuka! Kamu berhasil kabur dari perpustakaan!',
+          },
+          visible: {
+            requiresSolved: 'puzzle_library_door',
+          },
+        },
+      ],
+    },
+  ],
+
+  items: [],
+  clues: [],
+
+  puzzles: [
+    {
+      id: 'puzzle_library_door',
+      type: 'keypad',
+      title: ' Panel Kode Pintu',
+      answer: '573',
+      maxDigits: 3,
+      clueIds: [],
+    },
+  ],
+
+  exitPuzzleId: 'puzzle_library_door',
+};
+
+const LEVEL_4: Level = {
+  id: 'level_4',
+  title: 'Minimarket',
+  description: 'Terjebak di minimarket! Hitung total harga barang yang ada di meja kasir dan masukkan kodenya untuk membuka pintu.',
+  thumbnail: '',
+  timeLimit: 480,
+  starThresholds: [360, 180, 30],
+  music: '/audio/level4_music.mp3',
+
+  scenes: [
+    {
+      id: 'scene_store',
+      label: 'Minimarket',
+      backgroundImage: '/backgrounds/minimarket.png',
+      hotspots: [
+        // Komputer kasir — langsung zoom input kode
+        {
+          id: 'hs_computer_store',
+          x: 7,
+          y: 60,
+          width: 22,
+          height: 20,
+          cursor: 'zoom-in',
+          action: {
+            type: 'open_puzzle',
+            puzzleId: 'puzzle_store_computer',
+          },
+        },
+
+        // Buku "count" di meja — clue hint
+        
+
+        // Pintu (muncul setelah puzzle solved)
+        {
+          id: 'hs_door_store',
+          x: 38,
+          y: 5,
+          width: 24,
+          height: 80,
+          cursor: 'pointer',
+          action: {
+            type: 'message',
+            text: 'Pintu terbuka! Kamu berhasil kabur dari minimarket!',
+          },
+          visible: {
+            requiresSolved: 'puzzle_store_computer',
+          },
+        },
+      ],
+    },
+  ],
+
+  items: [],
+  clues: [],
+
+  puzzles: [
+    {
+      id: 'puzzle_store_computer',
+      type: 'keypad',
+      title: 'Komputer Kasir',
+      
+      answer: '755',
+      maxDigits: 3,
+      clueIds: [],
+    },
+  ],
+
+  exitPuzzleId: 'puzzle_store_computer',
+};
+
+const LEVEL_5: Level = {
+  id: 'level_5',
+  title: 'Toko Mainan',
+  description: 'Terjebak di toko mainan! Baca catatan yang ada dan masukkan kode 6 digit untuk membuka pintu EXIT.',
+  thumbnail: '',
+  timeLimit: 540,
+  starThresholds: [420, 240, 60],
+  music: '/audio/level5_music.mp3',
+
+  scenes: [
+    {
+      id: 'scene_toystore',
+      label: 'Toko Mainan',
+      backgroundImage: '/backgrounds/toystore.png',
+      hotspots: [
+        // Layar komputer
+        {
+          id: 'hs_computer_toy',
+          x: 50,
+          y: 50,
+          width: 29,
+          height: 25,
+          cursor: 'zoom-in',
+          action: {
+            type: 'open_puzzle',
+            puzzleId: 'puzzle_toystore_door',
+          },
+        },
+
+        // Note di samping komputer (di layar, sticky note)
+        {
+          id: 'hs_note_monitor',
+          x: 79,
+          y: 52,
+          width: 7,
+          height: 14,
+          cursor: 'zoom-in',
+          action: {
+            type: 'open_note',
+            image: '/notes/toystore_note_monitor.png',
+          },
+        },
+
+        // Note di meja (bawah)
+        {
+          id: 'hs_note_desk',
+          x: 22,
+          y: 72,
+          width: 10,
+          height: 14,
+          cursor: 'zoom-in',
+          action: {
+            type: 'open_note',
+            image: '/notes/toystore_note_desk.png',
+          },
+        },
+
+        // Pintu EXIT (muncul setelah puzzle solved)
+        {
+          id: 'hs_door_toy',
+          x: 38,
+          y: 8,
+          width: 22,
+          height: 72,
+          cursor: 'pointer',
+          action: {
+            type: 'message',
+            text: 'Pintu terbuka! Kamu berhasil kabur dari toko mainan!',
+          },
+          visible: {
+            requiresSolved: 'puzzle_toystore_door',
+          },
+        },
+      ],
+    },
+  ],
+
+  items: [],
+  clues: [],
+
+  puzzles: [
+    {
+      id: 'puzzle_toystore_door',
+      type: 'keypad',
+      title: ' Komputer Kasir',
+      answer: '5797',
+      maxDigits: 4,
+      clueIds: [],
+    },
+  ],
+
+  exitPuzzleId: 'puzzle_toystore_door',
+};
+
+export const LEVELS: Level[] = [LEVEL_4,LEVEL_1,LEVEL_5, LEVEL_2,LEVEL_3];

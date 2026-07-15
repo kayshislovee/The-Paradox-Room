@@ -68,6 +68,7 @@
   animation: hotspotPulse 2.5s ease-in-out infinite;
 }
 
+
 @keyframes hotspotPulse {
   0%, 100% { border-color: rgba(167, 139, 250, 0); background: rgba(124, 58, 237, 0); }
   50% { border-color: rgba(167, 139, 250, 0); background: rgba(124, 58, 237, 0); }
@@ -75,7 +76,7 @@
 
 .hotspot:hover {
   border-color: rgba(167, 139, 250, 0) !important;
- /* background: rgba(124, 58, 237, 0.2) !important;*/
+  background: rgba(124, 58, 237, 0) !important;
  background: transparent;
   animation: none;
 }

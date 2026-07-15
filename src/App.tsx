@@ -33,11 +33,9 @@ export default function App() {
   if (showLoading && pendingLevel) {
     return (
       <LoadingScreen
-        levelTitle={pendingLevel.title}
-        levelDescription={pendingLevel.description}
-        thumbnail={pendingLevel.thumbnail}
-        onDone={handleLoadingDone}
-      />
+  levelId={pendingLevelId!}
+  onDone={handleLoadingDone}
+/>
     );
   }
 
