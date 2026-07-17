@@ -38,11 +38,6 @@ export function PuzzleModal({ puzzleId, level }: Props) {
       <div
         className={styles.box}
         onClick={(e) => e.stopPropagation()}
-        style={isLeverPuzzle ? {
-          background: 'linear-gradient(160deg, #0f0c29, #1a1a3e)',
-          border: '2px solid #4a5568',
-          maxWidth: 560,
-        } : undefined}
       >
         {/* Header */}
         <div className={styles.header}>
@@ -50,25 +45,26 @@ export function PuzzleModal({ puzzleId, level }: Props) {
           <button className={styles.closeBtn} onClick={closePuzzle}>✕</button>
         </div>
 
-       
-        {alreadySolved ? (
-          <div className={styles.solved}>✅ Sistem sudah diaktifkan!</div>
-        ) : (
-          <>
-            {isLeverPuzzle && (
-              <LeverPuzzle puzzle={puzzle} onSolve={handleSolve} />
-            )}
-            {!isLeverPuzzle && puzzle.type === 'keypad' && (
-              <KeypadPuzzle puzzle={puzzle} onSolve={handleSolve} />
-            )}
-            {!isLeverPuzzle && puzzle.type === 'sequence' && (
-              <SequencePuzzle puzzle={puzzle} onSolve={handleSolve} />
-            )}
-            {!isLeverPuzzle && puzzle.type === 'pattern' && (
-              <PatternPuzzle puzzle={puzzle} onSolve={handleSolve} />
-            )}
-          </>
-        )}
+        <div className={styles.content}>
+          {alreadySolved ? (
+            <div className={styles.solved}>✓ SISTEM SUDAH AKTIF</div>
+          ) : (
+            <>
+              {isLeverPuzzle && (
+                <LeverPuzzle puzzle={puzzle} onSolve={handleSolve} />
+              )}
+              {!isLeverPuzzle && puzzle.type === 'keypad' && (
+                <KeypadPuzzle puzzle={puzzle} onSolve={handleSolve} />
+              )}
+              {!isLeverPuzzle && puzzle.type === 'sequence' && (
+                <SequencePuzzle puzzle={puzzle} onSolve={handleSolve} />
+              )}
+              {!isLeverPuzzle && puzzle.type === 'pattern' && (
+                <PatternPuzzle puzzle={puzzle} onSolve={handleSolve} />
+              )}
+            </>
+          )}
+        </div>
 
         {/* Clue hints */}
         {puzzle.clueIds.length > 0 && (

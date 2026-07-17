@@ -50,7 +50,7 @@ export function useMusic(src: string, defaultVolume?: number) {
     currentAudio?.pause();
     currentAudio = new Audio(src);
     currentAudio.loop = true;
-    currentAudio.volume = musicMuted ? 0 : (defaultVolume ?? musicVolume);
+     currentAudio.volume = 0.7; 
     currentAudio.play().catch(() => {});
     currentSrc = src;
   }, [src]);
@@ -61,7 +61,7 @@ export function useMusic(src: string, defaultVolume?: number) {
       currentAudio.volume = 0;
       currentAudio.pause();
     } else {
-      currentAudio.volume = defaultVolume ?? musicVolume;
+      currentAudio.volume = musicVolume; 
       currentAudio.play().catch(() => {});
     }
   }, [musicMuted, musicVolume, defaultVolume]);

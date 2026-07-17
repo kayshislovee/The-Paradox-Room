@@ -53,8 +53,15 @@ export interface Hotspot {
     requiresItem?: string;      // muncul hanya jika player punya item ini
     requiresSolved?: string;    // muncul hanya jika puzzle ini sudah solved
     hideAfterUsed?: boolean;    // hilang setelah diklik
-  };
 
+    
+  };
+image?: string; 
+ zIndex?: number;       // path ke asset PNG
+  imageStyle?: {         // style tambahan untuk gambar
+    objectFit?: string;
+    objectPosition?: string;
+  };
   alreadyUsed?: boolean; // internal state
 }
 

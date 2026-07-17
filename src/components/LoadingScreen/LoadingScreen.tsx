@@ -11,6 +11,7 @@ export function LoadingScreen({ levelId, onDone }: Props) {
   const [status, setStatus] = useState('Memuat level...');
   const [visible, setVisible] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
+  const [loadDone, setLoadDone] = useState(false);
 
   const level = LEVELS.find((l) => l.id === levelId);
 
@@ -24,30 +25,18 @@ export function LoadingScreen({ levelId, onDone }: Props) {
 
     const assets: string[] = [];
 
-    // Kumpulkan semua asset yang perlu diload
     level.scenes.forEach((scene) => {
       if (scene.backgroundImage) assets.push(scene.backgroundImage);
-    });
-
-    // Kumpulkan asset notes dari hotspots
-    level.scenes.forEach((scene) => {
       scene.hotspots.forEach((hs) => {
-        if (hs.action.type === 'open_note') {
-          assets.push(hs.action.image);
-        }
-        if (hs.action.type === 'open_zoom') {
-          assets.push(hs.action.zoomImage);
-        }
+        if (hs.action.type === 'open_note') assets.push(hs.action.image);
+        if (hs.action.type === 'open_zoom') assets.push(hs.action.zoomImage);
       });
     });
 
-    // Load audio
     if (level.music) assets.push(level.music);
 
     const total = assets.length || 1;
     let loaded = 0;
-
-    setStatus('Memuat background...');
 
     for (const asset of assets) {
       await preloadAsset(asset);
@@ -55,7 +44,6 @@ export function LoadingScreen({ levelId, onDone }: Props) {
       const pct = Math.round((loaded / total) * 100);
       setProgress(pct);
 
-      // Update status sesuai jenis asset
       if (asset.includes('background')) setStatus('Memuat background...');
       else if (asset.includes('note')) setStatus('Memuat catatan...');
       else if (asset.includes('audio')) setStatus('Memuat musik...');
@@ -63,33 +51,31 @@ export function LoadingScreen({ levelId, onDone }: Props) {
     }
 
     setProgress(100);
-    setStatus('Siap!');
-
-    setTimeout(() => {
-      setFadeOut(true);
-      setTimeout(onDone, 600);
-    }, 400);
+    setStatus('Selesai dimuat!');
+    setLoadDone(true); // ← tampilkan tombol
   };
 
   const preloadAsset = (src: string): Promise<void> => {
     return new Promise((resolve) => {
       if (src.match(/\.(mp3|wav|ogg)$/)) {
-        // Preload audio
         const audio = new Audio();
         audio.src = src;
         audio.oncanplaythrough = () => resolve();
-        audio.onerror = () => resolve(); // skip jika gagal
+        audio.onerror = () => resolve();
         audio.load();
-        // Timeout fallback
         setTimeout(resolve, 3000);
       } else {
-        // Preload image
         const img = new Image();
         img.src = src;
         img.onload = () => resolve();
-        img.onerror = () => resolve(); // skip jika gagal
+        img.onerror = () => resolve();
       }
     });
+  };
+
+  const handleNext = () => {
+    setFadeOut(true);
+    setTimeout(onDone, 600);
   };
 
   if (!level) return null;
@@ -113,7 +99,7 @@ export function LoadingScreen({ levelId, onDone }: Props) {
       <div style={{
         zIndex: 1, textAlign: 'center',
         display: 'flex', flexDirection: 'column',
-        alignItems: 'center', gap: 0,
+        alignItems: 'center',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(20px)',
         transition: 'opacity 0.8s ease, transform 0.8s ease',
@@ -157,7 +143,8 @@ export function LoadingScreen({ levelId, onDone }: Props) {
           <div style={{ width: 60, height: 1, background: '#c8b89a', opacity: 0.4 }} />
         </div>
 
-        <div style={{ width: 320, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* Progress bar */}
+        <div style={{ width: 320, display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
           <div style={{
             width: '100%', height: 3,
             background: 'rgba(255,255,255,0.1)',
@@ -190,6 +177,75 @@ export function LoadingScreen({ levelId, onDone }: Props) {
               {progress}%
             </span>
           </div>
+        </div>
+
+        {/* Tombol next — muncul setelah loading selesai */}
+        <div style={{
+          opacity: loadDone ? 1 : 0,
+          transform: loadDone ? 'translateY(0)' : 'translateY(10px)',
+          transition: 'opacity 0.4s ease, transform 0.4s ease',
+          pointerEvents: loadDone ? 'auto' : 'none',
+          width: 320,
+        }}>
+          <button
+            onClick={handleNext}
+            style={{
+              position: 'relative',
+              width: '100%',
+              padding: '16px 0',
+              background: 'linear-gradient(180deg, #5a5a5a 0%, #2a2a2a 40%, #1a1a1a 60%, #3a3a3a 100%)',
+              border: 'none',
+              borderRadius: 4,
+              cursor: 'pointer',
+              fontFamily: "'Georgia', serif",
+              fontSize: 15,
+              fontWeight: 600,
+              letterSpacing: 6,
+              color: '#e8d5b7',
+              textTransform: 'uppercase',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.5)',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(180deg, #6a6a6a 0%, #3a3a3a 40%, #2a2a2a 60%, #4a4a4a 100%)';
+              e.currentTarget.style.transform = 'scale(1.02)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(180deg, #5a5a5a 0%, #2a2a2a 40%, #1a1a1a 60%, #3a3a3a 100%)';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            {/* Dekorasi kiri */}
+            <div style={{
+              position: 'absolute', left: 16, top: '50%',
+              transform: 'translateY(-50%)',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <div style={{ width: 16, height: 1, background: '#666' }} />
+              <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#555' }} />
+            </div>
+            {/* Dekorasi kanan */}
+            <div style={{
+              position: 'absolute', right: 16, top: '50%',
+              transform: 'translateY(-50%)',
+              display: 'flex', alignItems: 'center', gap: 6, flexDirection: 'row-reverse',
+            }}>
+              <div style={{ width: 16, height: 1, background: '#666' }} />
+              <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#555' }} />
+            </div>
+
+            ▶ Masuk Level
+
+            {/* Border */}
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: 4,
+              border: '1px solid #555', pointerEvents: 'none',
+            }} />
+            <div style={{
+              position: 'absolute', inset: 3, borderRadius: 2,
+              border: '1px solid #444', pointerEvents: 'none',
+            }} />
+          </button>
         </div>
       </div>
     </div>

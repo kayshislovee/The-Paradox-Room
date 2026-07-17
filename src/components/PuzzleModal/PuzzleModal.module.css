@@ -1,43 +1,113 @@
 .overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center;
   z-index: 200;
 }
 
 .box {
-  background: #140828;
-  border: 1px solid rgba(167,139,250,0.25);
-  border-radius: 1.25rem;
-  padding: 2rem;
-  width: min(480px, 92vw);
-  max-height: 90vh;
+  /* Metal panel dengan efek brushed steel */
+  background:
+    linear-gradient(160deg, #1c2333 0%, #111827 40%, #0d1117 100%);
+  border: 1px solid rgba(99,179,237,0.2);
+  border-radius: 1rem;
+  padding: 0;
+  width: min(520px, 94vw);
+  max-height: 92vh;
   overflow-y: auto;
   color: #fff;
   font-family: 'Segoe UI', sans-serif;
-  box-shadow: 0 0 60px rgba(124,58,237,0.2);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 2px 0 rgba(255,255,255,0.06) inset,
+    0 32px 80px rgba(0,0,0,0.9),
+    0 0 40px rgba(56,189,248,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Garis dekoratif horizontal atas */
+.box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #38bdf8 30%, #818cf8 70%, transparent);
+  opacity: 0.6;
+}
+
+/* Corner accent kanan bawah */
+.box::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 80px; height: 80px;
+  background: 
+    linear-gradient(225deg, rgba(56,189,248,0.07) 0%, transparent 60%);
+  border-top-left-radius: 80px;
+  pointer-events: none;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  padding: 1.1rem 1.5rem 0.8rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.2);
+  gap: 1rem;
 }
 
-.title { font-size: 1.2rem; font-weight: 700; color: #e2d9f3; margin: 0; }
+.title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin: 0;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+  animation: blink-dot 2s ease-in-out infinite;
+}
+
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
 
 .closeBtn {
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.6);
-  width: 32px; height: 32px;
-  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4);
+  width: 28px; height: 28px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.15s;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
-.closeBtn:hover { background: rgba(255,255,255,0.15); }
+.closeBtn:hover {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.4);
+  color: #f87171;
+}
+
+.content {
+  padding: 1.5rem;
+}
 
 .desc {
   color: rgba(255,255,255,0.5);
@@ -47,28 +117,33 @@
 
 .solved {
   text-align: center;
-  color: #86efac;
-  font-size: 1.1rem;
-  font-weight: 600;
-  padding: 1.5rem;
+  padding: 2rem;
+  color: #34d399;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 16px rgba(52,211,153,0.6);
 }
 
 .clueHints {
   margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 0.8rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
   align-items: center;
+  background: rgba(0,0,0,0.15);
 }
 
-.clueLabel { font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+.clueLabel { font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 0.05em; }
 .clueTag {
-  font-size: 0.75rem;
-  background: rgba(124,58,237,0.15);
-  border: 1px solid rgba(124,58,237,0.25);
-  color: #c4b5fd;
+  font-size: 0.7rem;
+  background: rgba(56,189,248,0.1);
+  border: 1px solid rgba(56,189,248,0.2);
+  color: #7dd3fc;
   padding: 2px 8px;
   border-radius: 4px;
+  font-family: 'Courier New', monospace;
 }

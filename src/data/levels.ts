@@ -27,11 +27,12 @@ const LEVEL_1: Level = {
         {
           id: 'hs_computer',
         
-          x: 5,
-          y: 36,
-          width: 23,
-          height: 29,
+          x: -5,
+          y: 33,
+          width: 45,
+          height: 45,
           cursor: 'zoom-in',
+          image: '/objects/monitor.png', 
           action: {
             type: 'open_zoom',
             zoomImage: '/zooms/computer_screen.png',
@@ -46,11 +47,12 @@ const LEVEL_1: Level = {
         {
           id: 'hs_lever_panel',
         
-          x: 68,
-          y: 21,
-          width: 11,
-          height: 37,
+          x: 67.5,
+          y: 37,
+          width: 15,
+          height: 10,
           cursor: 'pointer',
+          image: '/objects/lever.png', 
           action: {
             type: 'open_puzzle',
             puzzleId: 'puzzle_lever_pattern',
@@ -101,7 +103,7 @@ const LEVEL_1: Level = {
 
 const LEVEL_2: Level = {
   id: 'level_2',
-  //music: '/audio/level2_music.mp3', 
+  music: '/audio/level2_music.mp3', 
   title: 'Koridor Sekolah',
   description: 'Terjebak di koridor sekolah! Baca semua notes untuk menemukan kode 3 digit lalu buka pintu EXIT.',
   thumbnail: '',
@@ -117,11 +119,13 @@ const LEVEL_2: Level = {
         // ── NOTES 1 — di loker paling kiri (ditempel, berisi clue basket) ───
         {
           id: 'hs_note1',
-          x: 6,
-          y: 34,
-          width: 5,
-          height: 12,
+          x: 3.5,
+          y: 30,
+          width: 10,
+          height: 15,
           cursor: 'zoom-in',
+          image: '/objects/note2.png',
+          zIndex: 2,
          action: {
   type: 'open_note',
   image: '/notes/note2.png', // ← path ke asset
@@ -132,10 +136,11 @@ const LEVEL_2: Level = {
         {
           id: 'hs_note2',
           x: 28,
-          y: 84,
-          width: 6,
-          height: 11,
+          y: 83,
+          width: 10,
+          height: 15,
           cursor: 'zoom-in',
+           image: '/objects/notenone1.png',
           action: {
             type: 'open_note',
             image: '/notes/none.png', // ← path ke asset
@@ -145,11 +150,13 @@ const LEVEL_2: Level = {
         // ── NOTES 3 — paling kanan lantai (clue blue balls) ─────────────────
         {
           id: 'hs_note3',
-          x: 70,
-          y: 85,
-          width: 8,
-          height: 11,
+          x: 65,
+          y: 80,
+          width: 13,
+          height: 18,
           cursor: 'zoom-in',
+           image: '/objects/note1.png',
+           zIndex: 2,
           action: {
             type: 'open_note',
             image: '/notes/note1.png', // ← path ke asset
@@ -159,11 +166,12 @@ const LEVEL_2: Level = {
         // ── NOTES 4 — tengah lantai (clue lockers combinations) ─────────────
         {
           id: 'hs_note4',
-          x: 49,
-          y: 85,
-          width: 6,
-          height: 11,
+          x: 46,
+          y: 81,
+          width: 13,
+          height: 18,
           cursor: 'zoom-in',
+           image: '/objects/note3.png',
           action: {
             type: 'open_note',
            image: '/notes/note3.png', // ← path ke asset
@@ -173,11 +181,12 @@ const LEVEL_2: Level = {
         // ── NOTES 5 — loker kanan atas (none) ───────────────────────────────
         {
           id: 'hs_note5',
-          x: 89,
-          y: 37,
-          width: 5,
-          height: 12,
+          x: 86.6,
+          y: 34,
+          width: 10,
+          height: 15,
           cursor: 'zoom-in',
+           image: '/objects/notenone2.png',
           action: {
             type: 'open_note',
            image: '/notes/none.png', // ← path ke asset
@@ -187,11 +196,12 @@ const LEVEL_2: Level = {
         // ── KEYPAD di sebelah pintu (puzzle utama) ───────────────────────────
         {
           id: 'hs_keypad',
-          x: 61.2,
+          x: 56,
           y: 30,
-          width: 5.6,
-          height: 15,
+          width: 15,
+          height: 18,
           cursor: 'pointer',
+           image: '/objects/codepanel.png',
           action: {
             type: 'open_puzzle',
             puzzleId: 'puzzle_exit_keypad',
@@ -266,11 +276,12 @@ const LEVEL_3: Level = {
         // Notes kiri
         {
           id: 'hs_note_left',
-          x: 13,
+          x: 3,
           y: 30,
-          width: 6,
-          height: 16,
+          width: 26,
+          height: 20,
           cursor: 'zoom-in',
+          image: '/objects/note_perpus.png',
           action: {
             type: 'open_note',
             image: '/notes/notekiri.png',
@@ -280,11 +291,12 @@ const LEVEL_3: Level = {
         // Notes kanan
         {
           id: 'hs_note_right',
-          x: 77,
-          y: 33,
-          width: 7,
-          height: 16,
+          x: 68,
+          y: 30,
+          width: 26,
+          height: 20,
           cursor: 'zoom-in',
+          image: '/objects/note_perpus.png',
           action: {
             type: 'open_note',
             image: '/notes/notekanan.png',
@@ -294,11 +306,12 @@ const LEVEL_3: Level = {
         // Keypad
         {
           id: 'hs_keypad_library',
-          x: 87,
-          y: 45,
-          width: 7,
-          height: 20,
+          x: 81,
+          y: 42,
+          width: 16,
+          height: 24,
           cursor: 'pointer',
+          image: '/objects/code_perpus.png',
           action: {
             type: 'open_puzzle',
             puzzleId: 'puzzle_library_door',
@@ -360,11 +373,12 @@ const LEVEL_4: Level = {
         // Komputer kasir — langsung zoom input kode
         {
           id: 'hs_computer_store',
-          x: 7,
-          y: 60,
-          width: 22,
-          height: 20,
+          x: 1,
+          y: 55,
+          width: 40,
+          height: 34,
           cursor: 'zoom-in',
+          image: '/objects/monitormarket.png',
           action: {
             type: 'open_puzzle',
             puzzleId: 'puzzle_store_computer',
@@ -430,11 +444,13 @@ const LEVEL_5: Level = {
         // Layar komputer
         {
           id: 'hs_computer_toy',
-          x: 50,
-          y: 50,
-          width: 29,
-          height: 25,
+          x: 38,
+          y: 44,
+          width: 55,
+          height: 39,
           cursor: 'zoom-in',
+          image: '/objects/monitortoy.png',
+          zIndex: 1, 
           action: {
             type: 'open_puzzle',
             puzzleId: 'puzzle_toystore_door',
@@ -444,14 +460,16 @@ const LEVEL_5: Level = {
         // Note di samping komputer (di layar, sticky note)
         {
           id: 'hs_note_monitor',
-          x: 79,
-          y: 52,
-          width: 7,
+          x: 69,
+          y: 47.5,
+          width: 10,
           height: 14,
           cursor: 'zoom-in',
+          image: '/objects/notemonitor.png',
+          zIndex: 2, 
           action: {
             type: 'open_note',
-            image: '/notes/toystore_note_monitor.png',
+            image: '/notes/toynote1.png',
           },
         },
 
@@ -459,13 +477,15 @@ const LEVEL_5: Level = {
         {
           id: 'hs_note_desk',
           x: 22,
-          y: 72,
-          width: 10,
+          y: 75,
+          width: 15,
           height: 14,
           cursor: 'zoom-in',
+          image: '/objects/notemeja.png',
+          zIndex: 3, 
           action: {
             type: 'open_note',
-            image: '/notes/toystore_note_desk.png',
+            image: '/notes/toynote2.png',
           },
         },
 

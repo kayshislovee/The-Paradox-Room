@@ -104,3 +104,30 @@
   transition: opacity 0.15s, transform 0.15s;
   pointer-events: none;
 }
+.hasImage {
+  background: transparent !important;
+  border: none !important;
+}
+
+.hasImage:hover {
+  background: transparent !important;
+  border: none !important;
+}
+
+.hotspotImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  transition: transform 0.2s ease, filter 0.2s ease, drop-shadow 0.2s ease;
+  filter: drop-shadow(0 0 0px transparent);
+}
+
+.hasImage:hover .hotspotImage {
+  transform: scale(1.03);
+  filter: drop-shadow(0 0 12px rgba(200,184,154,0.5)) brightness(1.1);
+  animation: none;
+}

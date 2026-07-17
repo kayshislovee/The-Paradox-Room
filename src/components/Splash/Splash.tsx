@@ -16,7 +16,7 @@ export function Splash() {
   // Mulai musik saat pertama kali ada interaksi
   useEffect(() => {
     const startMusic = () => {
-      playMusic('/audio/menu_music.mp3', 0.7);
+      playMusic('/audio/menu_music.mp3', 0.7);                      //niwoiigh
       window.removeEventListener('click', startMusic);
       window.removeEventListener('keydown', startMusic);
       window.removeEventListener('touchstart', startMusic);
