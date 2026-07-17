@@ -14,12 +14,6 @@ import { useMusic } from '../../hooks/useMusic';
 
 export function GameScene() {
   useTimer();
-  const [mountKey, setMountKey] = useState(0);
-
-  useEffect(() => {
-    const t = setTimeout(() => setMountKey((k) => k + 1), 100);
-    return () => clearTimeout(t);
-  }, []);
 
   const {
     currentLevelId,
@@ -37,76 +31,152 @@ export function GameScene() {
 
   const { handleClick } = useHotspotAction();
 
+  const [bgReady, setBgReady] = useState(false);
+  const [loadedSceneId, setLoadedSceneId] = useState<string | null>(null);
+  const [introActive, setIntroActive] = useState(false);
+
   const level = LEVELS.find((l) => l.id === currentLevelId);
   const scene = level?.scenes.find((s) => s.id === currentSceneId);
 
-  useMusic(level?.music ?? '', 0.5);
+  useMusic(level?.music ?? '/audio/level1_music.mp3');
+
+  // Reset bgReady setiap kali scene berubah
+  useEffect(() => {
+    if (!scene) return;
+    if (scene.id === loadedSceneId) return;
+    setBgReady(false);
+    setIntroActive(false);
+  }, [scene?.id]);
 
   if (!level || !scene) return null;
 
   const isComputerZoom = zoomModal?.label?.includes('Layar Komputer');
 
+  // Kumpulkan semua gambar level untuk hidden preloader
+  const allLevelImages: string[] = [];
+  level.scenes.forEach((s) => {
+    if (s.backgroundImage) allLevelImages.push(s.backgroundImage);
+    s.hotspots.forEach((hs) => {
+      if (hs.action.type === 'open_note') allLevelImages.push(hs.action.image);
+      if (hs.action.type === 'open_zoom') allLevelImages.push(hs.action.zoomImage);
+    });
+  });
+
+  const handleBgLoad = () => {
+    setBgReady(true);
+    setLoadedSceneId(scene.id);
+    // Tunggu sebentar lalu trigger intro glow
+    setTimeout(() => {
+      setIntroActive(true);
+      // Matikan setelah animasi selesai (2.2s = 2s animasi + sedikit buffer)
+      setTimeout(() => setIntroActive(false), 2200);
+    }, 120);
+  };
+
   return (
     <div className={styles.root}>
       <HUD />
+
+      {/* Hidden preloader — semua gambar level di-render sebagai <img> di DOM */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          width: 0, height: 0,
+          overflow: 'hidden',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+        }}
+      >
+        {allLevelImages.map((src) => (
+          <img key={src} src={src} alt="" decoding="async" />
+        ))}
+      </div>
 
       <div className={styles.main}>
         <div className={styles.sceneWrapper}>
           <div
             className={styles.background}
-            style={{ backgroundImage: `url(${scene.backgroundImage})` }}
-            onContextMenu={(e) => {
-              if (!import.meta.env.DEV) return;
-              e.preventDefault();
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
-              const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
-              alert(`Posisi klik:\nx: ${x}%\ny: ${y}%`);
+            style={{
+              backgroundImage: bgReady ? `url(${scene.backgroundImage})` : 'none',
+              backgroundColor: '#1a0a2e',
             }}
           >
-            {!scene.backgroundImage && (
-              <div className={styles.placeholder}>
-                {scene.label}
+            {/* Trigger onLoad untuk bg scene aktif */}
+            <img
+              key={scene.backgroundImage}
+              src={scene.backgroundImage}
+              alt=""
+              decoding="async"
+              style={{
+                position: 'absolute',
+                width: 0, height: 0,
+                visibility: 'hidden',
+                pointerEvents: 'none',
+              }}
+              onLoad={handleBgLoad}
+              onError={handleBgLoad}
+            />
+
+            {/* Spinner saat bg belum siap */}
+            {!bgReady && (
+              <div style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: '#1a0a2e',
+              }}>
+                <div style={{
+                  width: 36, height: 36,
+                  border: '3px solid rgba(167,139,250,0.2)',
+                  borderTopColor: 'rgba(167,139,250,0.8)',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                }} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
             )}
 
-            {scene.hotspots.map((hs, idx) => {
+            {!scene.backgroundImage && (
+              <div className={styles.placeholder}>🏚️ {scene.label}</div>
+            )}
+
+            {bgReady && scene.hotspots.map((hs, idx) => {
               if (hs.visible?.requiresItem && !inventory.find((i) => i.id === hs.visible?.requiresItem)) return null;
               if (hs.visible?.requiresSolved && !solvedPuzzles.includes(hs.visible.requiresSolved)) return null;
               if (hs.visible?.hideAfterUsed && usedHotspots.includes(hs.id)) return null;
 
               const isUsed = usedHotspots.includes(hs.id);
-              const isPuzzleHs = hs.action.type === 'open_puzzle';
-              const isSolved = isPuzzleHs &&
+              const isSolved =
                 hs.action.type === 'open_puzzle' &&
                 solvedPuzzles.includes(hs.action.puzzleId);
 
               return (
                 <button
                   key={hs.id}
-                  className={`${styles.hotspot} ${isUsed ? styles.used : ''} ${hs.image ? styles.hasImage : ''}`}
+                  className={[
+                    styles.hotspot,
+                    isUsed ? styles.used : '',
+                    hs.image ? styles.hasImage : '',
+                    introActive ? styles.hotspotIntro : '',
+                  ].filter(Boolean).join(' ')}
                   style={{
                     left: `${hs.x}%`,
                     top: `${hs.y}%`,
                     width: `${hs.width}%`,
                     height: `${hs.height}%`,
                     cursor: hs.cursor ?? 'pointer',
-                    zIndex: hs.zIndex ?? 1,
                     border: isSolved ? '2px solid rgba(16,185,129,0.6)' : undefined,
+                    // Tiap hotspot menyala dengan delay berbeda supaya efeknya bergelombang
+                    animationDelay: introActive ? `${idx * 80}ms` : '0ms',
                   }}
                   onClick={() => handleClick(hs)}
-                  title={hs.id}
                 >
                   {hs.image && (
                     <img
-                      key={`${hs.id}-${mountKey}`}
                       src={hs.image}
                       alt=""
                       className={styles.hotspotImage}
                       draggable={false}
-                      style={{
-                        animationDelay: `${idx * 0.3}s`,
-                      } as React.CSSProperties}
                     />
                   )}
                 </button>
@@ -120,9 +190,7 @@ export function GameScene() {
 
       {activePuzzleId && <PuzzleModal puzzleId={activePuzzleId} level={level} />}
 
-      {zoomModal && isComputerZoom && (
-        <ComputerZoom onClose={closeZoom} />
-      )}
+      {zoomModal && isComputerZoom && <ComputerZoom onClose={closeZoom} />}
 
       {zoomModal && !isComputerZoom && (
         <div

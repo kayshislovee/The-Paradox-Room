@@ -25,7 +25,6 @@
 }
 
 .background {
-  /* Ikuti rasio gambar 1324:1188 ≈ 1.11:1 */
   aspect-ratio: 1536 / 1024;
   height: 100%;
   max-width: 100%;
@@ -52,50 +51,87 @@
   font-family: monospace;
 }
 
-/* ── Hotspot ── */
+/* ── Hotspot default — transparan, tidak ada visual ── */
 .hotspot {
   position: absolute;
-  background: rgba(124, 58, 237, 0);
-  border: 2px dashed rgba(167, 139, 250, 0);
+  background: transparent;
+  border: 2px solid transparent;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 4px;
-  overflow: hidden;
-  animation: hotspotPulse 2.5s ease-in-out infinite;
+  overflow: visible;
 }
 
-
-@keyframes hotspotPulse {
-  0%, 100% { border-color: rgba(167, 139, 250, 0); background: rgba(124, 58, 237, 0); }
-  50% { border-color: rgba(167, 139, 250, 0); background: rgba(124, 58, 237, 0); }
-}
-
+/* ── Hover — menyala dengan warna emas/krem ── */
 .hotspot:hover {
-  border-color: rgba(167, 139, 250, 0) !important;
-  background: rgba(124, 58, 237, 0) !important;
- background: transparent;
-  animation: none;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  animation: none !important;
 }
 
-.hotspot:hover .hotspotLabel {
-  opacity: 1;
-  transform: translateY(0);
+.hotspot:hover .hotspotImage {
+  transform: scale(1.03);
+  filter: drop-shadow(0 0 16px rgba(200, 184, 154, 0.484)) brightness(1.15);
+  animation: none !important;
 }
 
+/* ── Sudah dipakai ── */
 .hotspot.used {
   opacity: 0.25;
   pointer-events: none;
-  animation: none;
+  animation: none !important;
 }
 
+/* ── Intro glow — menyala sekali saat masuk scene ── */
+@keyframes introGlow {
+  0%   {
+    box-shadow: 0 0 0px rgba(200, 184, 154, 0);
+    border-color: rgba(200, 184, 154, 0);
+    background: rgba(200, 184, 154, 0);
+  }
+  25%  {
+    box-shadow: 0 0 20px rgba(200, 184, 154, 0.7), inset 0 0 14px rgba(200, 184, 154, 0.1);
+    border-color: rgba(200, 184, 154, 0.9);
+    background: rgba(200, 184, 154, 0.13);
+  }
+  65%  {
+    box-shadow: 0 0 20px rgba(200, 184, 154, 0.7), inset 0 0 14px rgba(200, 184, 154, 0.1);
+    border-color: rgba(200, 184, 154, 0.9);
+    background: rgba(200, 184, 154, 0.13);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(200, 184, 154, 0);
+    border-color: rgba(200, 184, 154, 0);
+    background: rgba(200, 184, 154, 0);
+  }
+}
+
+@keyframes introGlowImage {
+  0%   { filter: drop-shadow(0 0 0px rgba(200, 184, 154, 0)) brightness(1); }
+  25%  { filter: drop-shadow(0 0 16px rgba(200, 184, 154, 0.95)) brightness(1.18); }
+  65%  { filter: drop-shadow(0 0 16px rgba(200, 184, 154, 0.95)) brightness(1.18); }
+  100% { filter: drop-shadow(0 0 0px rgba(200, 184, 154, 0)) brightness(1); }
+}
+
+.hotspotIntro {
+  /* Hilangkan animasi sinar kotak */
+  animation: none !important;
+}
+
+.hotspotIntro .hotspotImage {
+  animation: introGlowImage 2s ease-in-out forwards !important;
+}
+
+/* ── Label ── */
 .hotspotLabel {
   font-size: 0.7rem;
   background: rgba(10, 5, 20, 0.85);
-  color: #c3b5fd00;
+  color: rgba(195, 181, 253, 0);
   padding: 2px 6px;
   border-radius: 4px;
   white-space: nowrap;
@@ -104,6 +140,8 @@
   transition: opacity 0.15s, transform 0.15s;
   pointer-events: none;
 }
+
+/* ── Hotspot dengan gambar ── */
 .hasImage {
   background: transparent !important;
   border: none !important;
@@ -112,6 +150,7 @@
 .hasImage:hover {
   background: transparent !important;
   border: none !important;
+  box-shadow: none !important;
 }
 
 .hotspotImage {
@@ -122,12 +161,32 @@
   object-fit: contain;
   object-position: center;
   pointer-events: none;
-  transition: transform 0.2s ease, filter 0.2s ease, drop-shadow 0.2s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
   filter: drop-shadow(0 0 0px transparent);
 }
 
-.hasImage:hover .hotspotImage {
-  transform: scale(1.03);
-  filter: drop-shadow(0 0 12px rgba(200,184,154,0.5)) brightness(1.1);
-  animation: none;
+/* ── Polygon SVG overlay ── */
+.polygonOverlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.polygonOverlay polygon,
+.polygonOverlay g {
+  pointer-events: all;
+}
+
+/* Marching ants untuk idle polygon */
+@keyframes march {
+  to { stroke-dashoffset: -14; }
+}
+
+/* Hover state untuk box hotspot */
+.hotspotHovered {
+  background: rgba(200, 184, 154, 0.08) !important;
+  box-shadow: inset 0 0 0 2px rgba(200, 184, 154, 0.75),
+              0 0 14px rgba(200, 184, 154, 0.35) !important;
 }
