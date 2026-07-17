@@ -33,6 +33,7 @@ export function LoadingScreen({ levelId, onDone }: Props) {
     level.scenes.forEach((scene) => {
       if (scene.backgroundImage) imageUrls.push(scene.backgroundImage);
       scene.hotspots.forEach((hs) => {
+        if (hs.image) imageUrls.push(hs.image);
         if (hs.action.type === 'open_note') imageUrls.push(hs.action.image);
         if (hs.action.type === 'open_zoom') imageUrls.push(hs.action.zoomImage);
       });
@@ -70,6 +71,7 @@ export function LoadingScreen({ levelId, onDone }: Props) {
           loaded++;
           setProgress(Math.round((loaded / total) * 100));
           if (src.includes('background')) setStatus('Memuat background...');
+          else if (src.includes('objects')) setStatus('Memuat objek...');
           else if (src.includes('note') || src.includes('zoom')) setStatus('Memuat gambar...');
           else setStatus('Memuat aset...');
           resolve();
