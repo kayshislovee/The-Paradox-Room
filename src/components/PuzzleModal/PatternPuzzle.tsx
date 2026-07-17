@@ -52,7 +52,7 @@ export function PatternPuzzle({ puzzle, onSolve }: Props) {
         ✓ Periksa Pola
       </button>
 
-      {wrong && <p className={styles.wrongMsg}>❌ Pola salah! Coba lagi.</p>}
+      {wrong && <p className={styles.wrongMsg}>Pola salah! Coba lagi.</p>}
     </div>
   );
 }

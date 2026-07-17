@@ -17,13 +17,13 @@ export function Inventory() {
           className={`${styles.tab} ${tab === 'clues' ? styles.active : ''}`}
           onClick={() => setTab('clues')}
         >
-          🔍 Clue ({discoveredClues.length})
+          Clue ({discoveredClues.length})
         </button>
         <button
           className={`${styles.tab} ${tab === 'settings' ? styles.active : ''}`}
           onClick={() => setTab('settings')}
         >
-          ⚙️ Setting
+          Setting
         </button>
       </div>
 
@@ -51,7 +51,7 @@ export function Inventory() {
 
           {/* Music on/off */}
           <div className={styles.settingRow}>
-            <span className={styles.settingLabel}>🎵 Music</span>
+            <span className={styles.settingLabel}>Music</span>
             <button
               className={`${styles.toggleBtn} ${!musicMuted ? styles.toggleOn : styles.toggleOff}`}
               onClick={toggleMusicMuted}
@@ -62,7 +62,7 @@ export function Inventory() {
 
           {/* Music volume */}
           <div className={styles.settingRow}>
-            <span className={styles.settingLabel}>🔊 Volume</span>
+            <span className={styles.settingLabel}>Volume</span>
             <span className={styles.settingValue}>{Math.round(musicVolume * 100)}%</span>
           </div>
           <input
@@ -79,7 +79,7 @@ export function Inventory() {
             className={styles.exitBtn}
             onClick={() => goTo('main_menu')}
           >
-            🚪 Keluar ke Menu
+            Keluar ke Menu
           </button>
         </div>
       )}

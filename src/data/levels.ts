@@ -47,10 +47,10 @@ const LEVEL_1: Level = {
         {
           id: 'hs_lever_panel',
         
-          x: 67.5,
-          y: 37,
-          width: 15,
-          height: 10,
+          x: 60,
+          y: 32,
+          width: 25,
+          height: 15,
           cursor: 'pointer',
           image: '/objects/lever.png', 
           action: {
@@ -429,7 +429,7 @@ const LEVEL_4: Level = {
 const LEVEL_5: Level = {
   id: 'level_5',
   title: 'Toko Mainan',
-  description: 'Terjebak di toko mainan! Baca catatan yang ada dan masukkan kode 6 digit untuk membuka pintu EXIT.',
+  description: 'Terjebak di toko mainan! Baca catatan yang ada dan masukkan kode 4 digit untuk membuka pintu EXIT.',
   thumbnail: '',
   timeLimit: 540,
   starThresholds: [420, 240, 60],

@@ -26,7 +26,7 @@ export function PuzzleModal({ puzzleId, level }: Props) {
       const item = level.items.find((i) => i.id === puzzle.reward);
       if (item) addToInventory(item);
     }
-    showNotification('✅ Sistem teraktifkan! Pintu terbuka!', 'success');
+    showNotification('Sistem teraktifkan! Pintu terbuka!', 'success');
     setTimeout(() => closePuzzle(), 1500);
   };
 
@@ -69,7 +69,7 @@ export function PuzzleModal({ puzzleId, level }: Props) {
         {/* Clue hints */}
         {puzzle.clueIds.length > 0 && (
           <div className={styles.clueHints}>
-            <span className={styles.clueLabel}>💡 Clue terkait:</span>
+            <span className={styles.clueLabel}>Clue terkait:</span>
             {puzzle.clueIds.map((cid) => {
               const clue = level.clues.find((c) => c.id === cid);
               return clue ? (

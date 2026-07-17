@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStore } from './store/gameStore';
 import { Splash } from './components/Splash/Splash';
 import { LevelSelect } from './components/LevelSelect/LevelSelect';
@@ -29,7 +29,16 @@ export default function App() {
   };
 
   const pendingLevel = LEVELS.find((l) => l.id === pendingLevelId);
-
+  // Preload semua background level sekali saat app mount
+useEffect(() => {
+  LEVELS.forEach((level) => {
+    level.scenes.forEach((scene) => {
+      if (!scene.backgroundImage) return;
+      const img = new Image();
+      img.src = scene.backgroundImage;
+    });
+  });
+}, []);
   if (showLoading && pendingLevel) {
     return (
       <LoadingScreen

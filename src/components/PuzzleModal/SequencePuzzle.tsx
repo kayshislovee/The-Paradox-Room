@@ -57,7 +57,7 @@ export function SequencePuzzle({ puzzle, onSolve }: Props) {
         })}
       </div>
 
-      {wrong && <p className={styles.wrongMsg}>❌ Urutan salah! Coba lagi.</p>}
+      {wrong && <p className={styles.wrongMsg}>Urutan salah! Coba lagi.</p>}
     </div>
   );
 }

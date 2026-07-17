@@ -200,7 +200,7 @@ export function LeverPuzzle({ puzzle, onSolve }: Props) {
           variant="secondary"
         />
         <ActionBtn
-          label="⚡  AKTIFKAN"
+          label="AKTIFKAN"
           onClick={handleCheck}
           disabled={flash}
           variant="primary"

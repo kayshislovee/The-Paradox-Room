@@ -149,7 +149,7 @@ export const useGameStore = create<GameStore>()(
       addClue: (clue) => {
         if (get().discoveredClues.find((c) => c.id === clue.id)) return;
         set((s) => ({ discoveredClues: [...s.discoveredClues, clue] }));
-        get().showNotification(`🔍 Clue ditemukan: "${clue.hint}"`, 'info');
+        get().showNotification(`Clue ditemukan: "${clue.hint}"`, 'info');
       },
 
       hasClue: (clueId) => !!get().discoveredClues.find((c) => c.id === clueId),

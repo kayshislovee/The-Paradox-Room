@@ -61,12 +61,12 @@ export function GameScene() {
               const rect = e.currentTarget.getBoundingClientRect();
               const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
               const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
-              alert(`📍 Posisi klik:\nx: ${x}%\ny: ${y}%`);
+              alert(`Posisi klik:\nx: ${x}%\ny: ${y}%`);
             }}
           >
             {!scene.backgroundImage && (
               <div className={styles.placeholder}>
-                🏚️ {scene.label}
+                {scene.label}
               </div>
             )}
 

@@ -17,7 +17,7 @@ export function HUD() {
     <div className={styles.hud}>
       {/* Timer */}
       <div className={`${styles.timer} ${isUrgent ? styles.urgent : ''}`}>
-        ⏱ {formatTime(timeLeft)}
+        {formatTime(timeLeft)}
       </div>
 
       {/* Scene navigator */}
@@ -35,7 +35,7 @@ export function HUD() {
 
       {/* Clue counter */}
       <div className={styles.clueCount}>
-        🔍 {discoveredClues.length} clue
+        Clue: {discoveredClues.length}
       </div>
 
       {/* Quit */}

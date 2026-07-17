@@ -51,7 +51,7 @@ export function useHotspotAction() {
     addClue({
       id: `clue_zoom_${hotspot.id}`,
       type: 'text',
-      content: '🔍 Melihat Komputer',
+      content: 'Melihat Komputer',
       hint: `Lihatlah dengan teliti layar komputer ini, mungkin ada petunjuk di dalamnya.`,
     });
      // ← HAPUS baris ini
@@ -79,7 +79,7 @@ case 'open_note': {
     addClue({
       id: `clue_note_${hotspot.id}`,
       type: 'text',
-      content: '📄 Catatan dibaca',
+      content: 'Catatan dibaca',
       hint: `Kamu membaca sebuah catatan`,
     });
      // ← HAPUS baris ini
