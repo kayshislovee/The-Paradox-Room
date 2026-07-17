@@ -14,12 +14,7 @@ import { useMusic } from '../../hooks/useMusic';
 
 export function GameScene() {
   useTimer();
-  const [mountKey, setMountKey] = useState(0);
-
-  useEffect(() => {
-    const t = setTimeout(() => setMountKey((k) => k + 1), 100);
-    return () => clearTimeout(t);
-  }, []);
+  useMusic('/audio/level1_music.mp3');
 
   const {
     currentLevelId,
@@ -37,40 +32,132 @@ export function GameScene() {
 
   const { handleClick } = useHotspotAction();
 
+  // State untuk track apakah background scene sudah siap
+  const [bgReady, setBgReady] = useState(false);
+  // Track scene id terakhir supaya reset saat pindah scene
+  const [loadedSceneId, setLoadedSceneId] = useState<string | null>(null);
+
   const level = LEVELS.find((l) => l.id === currentLevelId);
   const scene = level?.scenes.find((s) => s.id === currentSceneId);
+  useMusic(level?.music ?? '/audio/level1_music.mp3');
 
-  useMusic(level?.music ?? '', 0.5);
+  // Reset bgReady setiap kali scene berubah
+  useEffect(() => {
+    if (!scene) return;
+    if (scene.id === loadedSceneId) return; // sudah pernah load, skip flicker
+    setBgReady(false);
+  }, [scene?.id]);
 
   if (!level || !scene) return null;
 
   const isComputerZoom = zoomModal?.label?.includes('Layar Komputer');
 
+  // Kumpulkan semua gambar di level ini untuk preload tersembunyi
+  const allLevelImages: string[] = [];
+  level.scenes.forEach((s) => {
+    if (s.backgroundImage) allLevelImages.push(s.backgroundImage);
+    s.hotspots.forEach((hs) => {
+      if (hs.action.type === 'open_note') allLevelImages.push(hs.action.image);
+      if (hs.action.type === 'open_zoom') allLevelImages.push(hs.action.zoomImage);
+    });
+  });
+
+  const handleBgLoad = () => {
+    setBgReady(true);
+    setLoadedSceneId(scene.id);
+  };
+
   return (
     <div className={styles.root}>
       <HUD />
 
+      {/*
+        HIDDEN PRELOADER — render semua gambar level sebagai <img> tersembunyi.
+        Karena pakai pipeline yang sama dengan CSS background-image (setelah
+        browser selesai load <img>, URL-nya masuk ke HTTP/image cache dan
+        langsung dipakai CSS tanpa fetch ulang).
+        display:none TIDAK bekerja (browser skip load), pakai visibility:hidden
+        dengan ukuran 0 supaya tidak makan layout.
+      */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          width: 0, height: 0,
+          overflow: 'hidden',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+        }}
+      >
+        {allLevelImages.map((src) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
+            // decode async supaya tidak blok render thread
+            decoding="async"
+            // fetchpriority tinggi untuk background scene aktif
+            {...(src === scene.backgroundImage ? { fetchPriority: 'high' } as any : {})}
+          />
+        ))}
+      </div>
+
       <div className={styles.main}>
         <div className={styles.sceneWrapper}>
+          {/*
+            Background <img> nyata sebagai elemen — bukan CSS background-image.
+            Ini menjamin onLoad dipanggil saat gambar benar-benar siap dirender.
+            Tetap pakai CSS background-image di atasnya, tapi kita tunggu
+            konfirmasi dari <img> dulu.
+          */}
           <div
             className={styles.background}
-            style={{ backgroundImage: `url(${scene.backgroundImage})` }}
-            onContextMenu={(e) => {
-              if (!import.meta.env.DEV) return;
-              e.preventDefault();
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
-              const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
-              alert(`📍 Posisi klik:\nx: ${x}%\ny: ${y}%`);
+            style={{
+              backgroundImage: bgReady ? `url(${scene.backgroundImage})` : 'none',
+              backgroundColor: '#1a0a2e',
+              transition: 'background-image 0s', // no flicker
             }}
           >
-            {!scene.backgroundImage && (
-              <div className={styles.placeholder}>
-                🏚️ {scene.label}
+            {/* Trigger onLoad untuk background scene saat ini */}
+            <img
+              key={scene.backgroundImage}
+              src={scene.backgroundImage}
+              alt=""
+              decoding="async"
+              fetchPriority="high"
+              style={{
+                position: 'absolute',
+                width: 0, height: 0,
+                visibility: 'hidden',
+                pointerEvents: 'none',
+              }}
+              onLoad={handleBgLoad}
+              onError={handleBgLoad} // tetap lanjut meski error
+            />
+
+            {/* Loading placeholder saat bg belum siap */}
+            {!bgReady && (
+              <div style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: '#1a0a2e',
+              }}>
+                <div style={{
+                  width: 40, height: 40,
+                  border: '3px solid rgba(167,139,250,0.2)',
+                  borderTopColor: 'rgba(167,139,250,0.8)',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                }} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
             )}
 
-            {scene.hotspots.map((hs, idx) => {
+            {!scene.backgroundImage && (
+              <div className={styles.placeholder}>🏚️ {scene.label}</div>
+            )}
+
+            {bgReady && scene.hotspots.map((hs) => {
               if (hs.visible?.requiresItem && !inventory.find((i) => i.id === hs.visible?.requiresItem)) return null;
               if (hs.visible?.requiresSolved && !solvedPuzzles.includes(hs.visible.requiresSolved)) return null;
               if (hs.visible?.hideAfterUsed && usedHotspots.includes(hs.id)) return null;
@@ -84,32 +171,17 @@ export function GameScene() {
               return (
                 <button
                   key={hs.id}
-                  className={`${styles.hotspot} ${isUsed ? styles.used : ''} ${hs.image ? styles.hasImage : ''}`}
+                  className={`${styles.hotspot} ${isUsed ? styles.used : ''}`}
                   style={{
                     left: `${hs.x}%`,
                     top: `${hs.y}%`,
                     width: `${hs.width}%`,
                     height: `${hs.height}%`,
                     cursor: hs.cursor ?? 'pointer',
-                    zIndex: hs.zIndex ?? 1,
                     border: isSolved ? '2px solid rgba(16,185,129,0.6)' : undefined,
                   }}
                   onClick={() => handleClick(hs)}
-                  title={hs.id}
-                >
-                  {hs.image && (
-                    <img
-                      key={`${hs.id}-${mountKey}`}
-                      src={hs.image}
-                      alt=""
-                      className={styles.hotspotImage}
-                      draggable={false}
-                      style={{
-                        animationDelay: `${idx * 0.3}s`,
-                      } as React.CSSProperties}
-                    />
-                  )}
-                </button>
+                />
               );
             })}
           </div>
@@ -120,9 +192,7 @@ export function GameScene() {
 
       {activePuzzleId && <PuzzleModal puzzleId={activePuzzleId} level={level} />}
 
-      {zoomModal && isComputerZoom && (
-        <ComputerZoom onClose={closeZoom} />
-      )}
+      {zoomModal && isComputerZoom && <ComputerZoom onClose={closeZoom} />}
 
       {zoomModal && !isComputerZoom && (
         <div
