@@ -37,7 +37,8 @@
   display: flex;
   gap: 0.5rem;
   flex: 1;
-  justify-content: center;
+ justify-content: flex-start; /* ← dari center ke flex-start */
+  padding-left: 1rem;
 }
 
 .sceneBtn {

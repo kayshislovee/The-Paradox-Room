@@ -2,8 +2,9 @@ import { useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { LEVELS } from '../data/levels';
 import type { Hotspot } from '../types/game.types';
-
+import { useSFX } from './useSFX';
 export function useHotspotAction() {
+  const sfx = useSFX();
   const {
     currentLevelId,
     addToInventory,
@@ -46,6 +47,7 @@ export function useHotspotAction() {
         }
 
         case 'open_zoom': {
+          sfx.playClick();
   openZoom(action.zoomImage, action.label);
   if (!isHotspotUsed(hotspot.id)) {
     addClue({
@@ -60,6 +62,7 @@ export function useHotspotAction() {
 }
 
 case 'open_puzzle': {
+  sfx.playClick();
   openPuzzle(action.puzzleId);
   if (!isHotspotUsed(hotspot.id)) {
     addClue({
@@ -74,6 +77,7 @@ case 'open_puzzle': {
 }
 
 case 'open_note': {
+  sfx.playNotes();
   openNote(action.image);
   if (!isHotspotUsed(hotspot.id)) {
     addClue({

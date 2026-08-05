@@ -4,6 +4,9 @@ import { KeypadPuzzle } from './KeypadPuzzle';
 import { SequencePuzzle } from './SequencePuzzle';
 import { PatternPuzzle } from './PatternPuzzle';
 import { LeverPuzzle } from './LeverPuzzle';
+import { ColorPatternPuzzle } from './ColorPatternPuzzle';
+import { ArrowInputPuzzle } from './ArrowInputPuzzle';
+import { ChemicalBottlePuzzle } from './ChemicalBottlePuzzle';
 import styles from './PuzzleModal.module.css';
 
 interface Props {
@@ -19,6 +22,7 @@ export function PuzzleModal({ puzzleId, level }: Props) {
   if (!puzzle) return null;
 
   const alreadySolved = isPuzzleSolved(puzzleId);
+  
 
   const handleSolve = () => {
     solvePuzzle(puzzleId);
@@ -29,6 +33,18 @@ export function PuzzleModal({ puzzleId, level }: Props) {
     showNotification('Sistem teraktifkan! Pintu terbuka!', 'success');
     setTimeout(() => closePuzzle(), 1500);
   };
+
+  const isLevel6Puzzle = ['puzzle_color_pattern', 'puzzle_arrow_input', 'puzzle_chemical_bottles'].includes(puzzleId);
+
+if (isLevel6Puzzle && !alreadySolved) {
+  return (
+    <>
+      {puzzle.id === 'puzzle_color_pattern' && <ColorPatternPuzzle onSolve={handleSolve} onClose={closePuzzle} />}
+      {puzzle.id === 'puzzle_arrow_input' && <ArrowInputPuzzle onSolve={handleSolve} onClose={closePuzzle} />}
+      {puzzle.id === 'puzzle_chemical_bottles' && <ChemicalBottlePuzzle onSolve={handleSolve} onClose={closePuzzle} />}
+    </>
+  );
+}
 
   // Puzzle tuas (pola biner) — tampilan full panel
   const isLeverPuzzle = puzzle.id === 'puzzle_lever_pattern' || puzzle.patternSize === 8;
@@ -61,6 +77,15 @@ export function PuzzleModal({ puzzleId, level }: Props) {
               )}
               {!isLeverPuzzle && puzzle.type === 'pattern' && (
                 <PatternPuzzle puzzle={puzzle} onSolve={handleSolve} />
+              )}
+              {puzzle.id === 'puzzle_color_pattern' && (
+                <ColorPatternPuzzle onSolve={handleSolve} onClose={closePuzzle} />
+              )}
+              {puzzle.id === 'puzzle_arrow_input' && (
+                <ArrowInputPuzzle onSolve={handleSolve} onClose={closePuzzle} />
+              )}
+              {puzzle.id === 'puzzle_chemical_bottles' && (
+                <ChemicalBottlePuzzle onSolve={handleSolve} onClose={closePuzzle} />
               )}
             </>
           )}

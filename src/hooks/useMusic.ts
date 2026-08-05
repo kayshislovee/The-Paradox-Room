@@ -66,3 +66,18 @@ export function useMusic(src: string, defaultVolume?: number) {
     }
   }, [musicMuted, musicVolume, defaultVolume]);
 }
+export function stopMusic() {
+  currentAudio?.pause();
+  currentAudio = null;
+  currentSrc = '';
+}
+
+export function pauseMusic() {
+  currentAudio?.pause();
+}
+
+export function resumeMusic() {
+  if (currentAudio?.paused) {
+    currentAudio.play().catch(() => {});
+  }
+}

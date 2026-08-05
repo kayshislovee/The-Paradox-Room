@@ -3,15 +3,15 @@ export interface Item {
   id: string;
   name: string;
   description: string;
-  icon: string; // emoji atau path gambar
+  icon: string;
 }
 
 // ─── CLUE ───────────────────────────────────────────────────────────────────
 export interface Clue {
   id: string;
   type: 'text' | 'number' | 'color' | 'symbol';
-  content: string; // isi clue, misal "3-7-2" atau "MERAH"
-  hint: string;    // deskripsi clue untuk player
+  content: string;
+  hint: string;
 }
 
 // ─── PUZZLE ─────────────────────────────────────────────────────────────────
@@ -21,117 +21,202 @@ export interface Puzzle {
   id: string;
   type: PuzzleType;
   title: string;
-  answer: string | string[]; // string untuk keypad/combination, string[] untuk sequence
-  maxDigits?: number;        // untuk keypad
-  patternSize?: number;      // untuk pattern (misal 3x3 = 9)
-  clueIds: string[];         // clue yang dibutuhkan untuk solve
-  reward?: string;           // itemId yang didapat setelah solve (opsional)
+  answer: string | string[];
+  maxDigits?: number;
+  patternSize?: number;
+  clueIds: string[];
+  reward?: string;
 }
 
-// ─── HOTSPOT (Objek yang bisa diklik di scene) ───────────────────────────────
+// ─── HOTSPOT ─────────────────────────────────────────────────────────────────
 export interface Hotspot {
   id: string;
- 
-  x: number;       // posisi % dari kiri
-  y: number;       // posisi % dari atas
-  width: number;   // ukuran % lebar
-  height: number;  // ukuran % tinggi
-  cursor?: string; // 'pointer' | 'zoom-in' | dll
-
-  // Aksi saat diklik:
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  cursor?: string;
   action:
     | { type: 'give_item'; itemId: string }
     | { type: 'give_clue'; clueId: string }
     | { type: 'open_puzzle'; puzzleId: string }
     | { type: 'open_zoom'; zoomImage: string; label: string }
-  | { type: 'open_note'; image: string }
+    | { type: 'open_note'; image: string }
     | { type: 'use_item'; requiredItemId: string; resultClueId?: string; resultMessage: string }
     | { type: 'message'; text: string };
-
-  // Kondisi kemunculan:
   visible?: {
-    requiresItem?: string;      // muncul hanya jika player punya item ini
-    requiresSolved?: string;    // muncul hanya jika puzzle ini sudah solved
-    hideAfterUsed?: boolean;    // hilang setelah diklik
-
-    
+    requiresItem?: string;
+    requiresSolved?: string;
+    hideAfterUsed?: boolean;
   };
-image?: string; 
- zIndex?: number;       // path ke asset PNG
-  imageStyle?: {         // style tambahan untuk gambar
+  image?: string;
+  zIndex?: number;
+  imageStyle?: {
     objectFit?: string;
     objectPosition?: string;
   };
-  alreadyUsed?: boolean; // internal state
+  alreadyUsed?: boolean;
 }
 
-// ─── SCENE (Satu view/sudut ruangan) ─────────────────────────────────────────
+// ─── SCENE ───────────────────────────────────────────────────────────────────
 export interface Scene {
   id: string;
   label: string;
-  backgroundImage: string; // path ke gambar background
+  backgroundImage: string;
   hotspots: Hotspot[];
+  hidden?: boolean;
 }
 
-// ─── LEVEL ──────────────────────────────────────────────────────────────────
+// ─── ACHIEVEMENT ─────────────────────────────────────────────────────────────
+export type AchievementType = 'time' | 'treasure';
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  type: AchievementType;
+  levelId?: string;
+  isGolden?: boolean;
+}
+
+// ─── TREASURE ────────────────────────────────────────────────────────────────
+export interface Treasure {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  image?: string;
+  achievementId: string;
+  sceneId?: string;  
+}
+
+// ─── LEVEL ───────────────────────────────────────────────────────────────────
 export interface Level {
   id: string;
+  dialogMusic?: string;
+  hints?: string[];
+  isLocked?: boolean;
   title: string;
   music?: string;
   description: string;
   thumbnail: string;
-  timeLimit: number;   // detik
+  timeLimit: number;
   scenes: Scene[];
   items: Item[];
+  treasures?: Treasure[];
+  achievements?: Achievement[];
   clues: Clue[];
+  introDialog?: DialogLine[];
   puzzles: Puzzle[];
-  exitPuzzleId: string; // puzzle terakhir yang harus diselesaikan untuk escape
-  starThresholds: [number, number, number]; // [3bintang, 2bintang, 1bintang] dalam detik tersisa
+  exitPuzzleId: string;
+  starThresholds: [number, number, number];
+  characterAvatar?: string;
+  characterName?: string;
+  exitLightPos?: { x: number; y: number };
+  exitDoorShape?: { width: number; height: number };
+  doorPolygon?: { x: number; y: number }[];
+  exitDoorPoints?: string;
+  sceneTransitionPoints?: Record<string, string>;
+  
+  comicSrc?: string;
+  sceneDialogs?: Record<string, DialogLine[]>;
+ comicPages?: ComicPage[];
+}
+export interface ComicPanel {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  enterFrom?: 'fade' | 'scale' | 'slide-left' | 'slide-right' | 'slide-up';
+  effect?: 'flash' | 'shake' | 'none';
+  duration?: number;
+  zoom?: number;
+  sfx?:string
 }
 
-// ─── GAME STATE ──────────────────────────────────────────────────────────────
+export interface ComicPage {
+  src: string;
+  panels: ComicPanel[];
+}
+// ─── GAME SCREEN ─────────────────────────────────────────────────────────────
 export type GameScreen =
-'splash'
+  | 'splash'
   | 'main_menu'
   | 'level_select'
   | 'gameplay'
   | 'win'
-  | 'settings';
+  | 'lose'
+  | 'settings'
+  | 'achievements';
 
+// ─── GAME STATE ──────────────────────────────────────────────────────────────
 export interface GameState {
   screen: GameScreen;
   currentLevelId: string | null;
   currentSceneId: string | null;
   inventory: Item[];
   discoveredClues: Clue[];
-  solvedPuzzles: string[];    // array of puzzleId
-  usedHotspots: string[];     // array of hotspotId
-  timeElapsed: number;        // detik
+  solvedPuzzles: string[];
+  usedHotspots: string[];
+  timeElapsed: number;
   timerActive: boolean;
-
-  // Progress tersimpan per level
+  hintsRemaining: number;
+  hintsUsed: number;
+  hintTokens: number;
+  lastHintRefill: number;
+  player: { id: number; username: string; email: string } | null;
+  token: string | null;
+  isGuest: boolean;
+  foundTreasures: string[];
+  unlockedAchievements: string[];
+  newAchievement: Achievement | null;
   levelProgress: Record<string, LevelProgress>;
-
-  // Zoom modal
   zoomModal: { image: string; label: string } | null;
- noteModal: { image: string } | null;
-
-  // Active puzzle modal
+  noteModal: { image: string } | null;
   activePuzzleId: string | null;
-
-  // Notification/toast
   notification: { text: string; type: 'info' | 'success' | 'error' } | null;
+  triggerDoorAnimation: boolean;
+  triggerSceneTransition: boolean;
+pendingNextSceneId: string | null;
+sceneBackgroundOverrides: Record<string, string>;
 }
 
 export interface LevelProgress {
   completed: boolean;
-  bestTime: number;   // detik
-  stars: number;      // 1-3
+  bestTime: number;
+  stars: number;
 }
 
 // ─── SETTINGS ────────────────────────────────────────────────────────────────
 export interface SettingsState {
-  musicVolume: number;   // 0-1
-  sfxVolume: number;     // 0-1
+  musicVolume: number;
+  sfxVolume: number;
   language: 'id' | 'en';
+}
+
+export interface DialogLine {
+  character: string;
+  avatar?: string;
+  text: string;
+  avatarLeft?: string;
+  avatarRight?: string;
+  side?: 'left' | 'right';
+  isSystem?: boolean;
+  avatarLeftStyle?: {
+    bottom?: number;
+    left?: number;
+    height?: number;
+  };
+  avatarRightStyle?: {
+    bottom?: number;
+    right?: number;
+    height?: number;
+  };
+}
+
+export interface Dialog {
+  id: string;
+  lines: DialogLine[];
 }

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import type { Puzzle } from '../../types/game.types';
-
+import { useSFX } from '../../hooks/useSFX';
 interface Props {
   puzzle: Puzzle;
   onSolve: () => void;
 }
 
 export function LeverPuzzle({ puzzle, onSolve }: Props) {
+  const sfx = useSFX();
   const answer = typeof puzzle.answer === 'string' ? puzzle.answer : puzzle.answer.join('');
   const leverCount = answer.length;
 
@@ -15,6 +16,7 @@ export function LeverPuzzle({ puzzle, onSolve }: Props) {
   const [flash, setFlash] = useState(false);
 
   const toggleLever = (i: number) => {
+     sfx.playClick(); 
     if (flash) return;
     setLevers((prev) => {
       const next = [...prev];
@@ -26,9 +28,11 @@ export function LeverPuzzle({ puzzle, onSolve }: Props) {
   const handleCheck = () => {
     const playerPattern = levers.map((on) => (on ? '1' : '0')).join('');
     if (playerPattern === answer) {
+       sfx.playSuccess();
       setFlash(true);
       setTimeout(() => onSolve(), 1000);
     } else {
+      sfx.playError();
       setShaking(true);
       setTimeout(() => setShaking(false), 600);
     }

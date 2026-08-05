@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Puzzle } from '../../types/game.types';
+import { useSFX } from '../../hooks/useSFX';
 
 interface Props {
   puzzle: Puzzle;
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function KeypadPuzzle({ puzzle, onSolve }: Props) {
+  const sfx = useSFX();
   const maxDigits = puzzle.maxDigits ?? 4;
   const [input, setInput] = useState('');
   const [shake, setShake] = useState(false);
@@ -15,6 +17,7 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
   const [errorFlash, setErrorFlash] = useState(false);
 
   const handlePress = (val: string) => {
+      sfx.playClick();
     if (input.length >= maxDigits || flash) return;
     setPressedKey(val);
     setTimeout(() => setPressedKey(null), 150);
@@ -29,11 +32,14 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
   };
 
   const handleSubmit = () => {
+         
     if (flash) return;
     if (input === puzzle.answer) {
+      sfx.playSuccess(); 
       setFlash(true);
       setTimeout(onSolve, 1000);
     } else {
+      sfx.playError(); 
       setShake(true);
       setErrorFlash(true);
       setInput('');
@@ -41,7 +47,8 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
     }
   };
 
-  const keys = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  // ✓ di posisi index 10 (antara * dan 0), ⌫ di posisi 11
+  const keys = ['1','2','3','4','5','6','7','8','9','✓','0','⌫'];
 
   return (
     <div style={{
@@ -109,7 +116,7 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
           pointerEvents: 'none',
         }} />
 
-        {/* Display input */}
+        {/* Display input — tampilkan angka asli */}
         <div style={{
           background: 'rgba(0,0,0,0.55)',
           borderRadius: 9,
@@ -138,7 +145,7 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
             minHeight: 40,
           }}>
             {Array.from({ length: maxDigits }).map((_, i) => {
-              const filled = i < input.length;
+              const char = input[i];
               const isActive = i === input.length && !flash;
               const dotColor = flash ? '#34d399' : errorFlash ? '#f87171' : '#38bdf8';
 
@@ -147,18 +154,25 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', gap: 4,
                 }}>
-                  <div style={{
-                    width: 10, height: 10,
-                    borderRadius: '50%',
-                    background: filled ? dotColor : 'transparent',
-                    border: `1.5px solid ${filled ? dotColor : (isActive ? dotColor : '#1e293b')}`,
-                    boxShadow: filled ? `0 0 10px ${dotColor}` : 'none',
-                    transition: 'all 0.2s',
+                  {/* Angka asli ditampilkan */}
+                  <span style={{
+                    fontFamily: 'Courier New',
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: dotColor,
+                    textShadow: char ? `0 0 10px ${dotColor}` : 'none',
+                    minWidth: 16,
+                    textAlign: 'center',
+                    minHeight: 28,
+                    display: 'block',
                     animation: isActive ? 'blinkCursor 1.1s ease-in-out infinite' : 'none',
-                  }} />
+                    opacity: char ? 1 : (isActive ? 0.4 : 0.1),
+                  }}>
+                    {char ?? (isActive ? '|' : '_')}
+                  </span>
                   <div style={{
                     width: 28, height: 1,
-                    background: filled
+                    background: char
                       ? `linear-gradient(90deg, transparent, ${dotColor}, transparent)`
                       : 'rgba(255,255,255,0.08)',
                     transition: 'all 0.2s',
@@ -181,7 +195,7 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
           )}
         </div>
 
-        {/* Grid tombol */}
+        {/* Grid tombol 3 kolom */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
@@ -189,65 +203,34 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
           position: 'relative',
         }}>
           {keys.map((key, idx) => {
-            if (key === '') {
-              return <div key={idx} />;
-            }
             const isBackspace = key === '⌫';
+            const isConfirm = key === '✓';
+            const isStar = key === '*';
             const isPressed = pressedKey === (isBackspace ? 'del' : key);
+
             return (
               <NumKey
                 key={idx}
                 label={key}
                 pressed={isPressed}
                 isBackspace={isBackspace}
+                isConfirm={isConfirm}
+                isStar={isStar}
                 flash={flash}
+                disabled={isConfirm
+                  ? input.length < maxDigits || flash
+                  : isStar
+                  ? true
+                  : flash}
                 onClick={() => {
-                  if (isBackspace) handleDelete();
-                  else handlePress(key);
+                  if (isConfirm) handleSubmit();
+                  else if (isBackspace) handleDelete();
+                  else if (!isStar) handlePress(key);
                 }}
               />
             );
           })}
         </div>
-
-        {/* Tombol OK */}
-        <button
-          onClick={handleSubmit}
-          disabled={input.length < maxDigits || flash}
-          style={{
-            width: '100%',
-            marginTop: 8,
-            padding: '11px 0',
-            fontFamily: 'Courier New',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: 3,
-            cursor: (input.length < maxDigits || flash) ? 'not-allowed' : 'pointer',
-            borderRadius: 8,
-            border: `1px solid ${input.length === maxDigits && !flash
-              ? 'rgba(56,189,248,0.45)'
-              : 'rgba(255,255,255,0.05)'}`,
-            background: flash
-              ? 'rgba(52,211,153,0.1)'
-              : input.length === maxDigits
-                ? 'rgba(56,189,248,0.1)'
-                : 'rgba(255,255,255,0.03)',
-            color: flash
-              ? '#34d399'
-              : input.length === maxDigits
-                ? '#38bdf8'
-                : '#334155',
-            boxShadow: input.length === maxDigits && !flash
-              ? '0 0 16px rgba(56,189,248,0.18), inset 0 1px 0 rgba(56,189,248,0.08)'
-              : 'none',
-            textShadow: input.length === maxDigits && !flash
-              ? '0 0 10px rgba(56,189,248,0.5)'
-              : 'none',
-            transition: 'all 0.2s',
-          }}
-        >
-          ✓  CONFIRM
-        </button>
       </div>
 
       <style>{`
@@ -274,53 +257,84 @@ export function KeypadPuzzle({ puzzle, onSolve }: Props) {
 }
 
 // ── Num Key ──────────────────────────────────────────────────────────────────
-function NumKey({ label, pressed, isBackspace, flash, onClick }: {
+function NumKey({ label, pressed, isBackspace, isConfirm, isStar, flash, disabled, onClick }: {
   label: string;
   pressed: boolean;
   isBackspace: boolean;
+  isConfirm: boolean;
+  isStar: boolean;
   flash: boolean;
+  disabled: boolean;
   onClick: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
+
+  const getBg = () => {
+    if (isConfirm) {
+      if (disabled) return 'rgba(255,255,255,0.02)';
+      if (pressed) return 'rgba(16,185,129,0.2)';
+      if (hovered) return 'rgba(16,185,129,0.15)';
+      return 'rgba(16,185,129,0.08)';
+    }
+    if (pressed) return 'rgba(56,189,248,0.12)';
+    if (hovered) return 'rgba(255,255,255,0.07)';
+    return 'rgba(255,255,255,0.03)';
+  };
+
+  const getBorder = () => {
+    if (isConfirm) {
+      if (disabled) return 'rgba(255,255,255,0.04)';
+      if (pressed || hovered) return 'rgba(16,185,129,0.6)';
+      return 'rgba(16,185,129,0.3)';
+    }
+    if (pressed) return 'rgba(56,189,248,0.5)';
+    if (hovered) return 'rgba(255,255,255,0.14)';
+    return 'rgba(255,255,255,0.06)';
+  };
+
+  const getColor = () => {
+    if (isConfirm) return disabled ? '#1e3a2f' : '#10b981';
+    if (isStar) return '#1e293b';
+    if (flash) return '#1e3a2f';
+    if (isBackspace) return hovered ? '#f87171' : '#ef4444';
+    return hovered ? '#e2e8f0' : '#94a3b8';
+  };
+
+  const getShadow = () => {
+    if (isConfirm && !disabled) {
+      return pressed
+        ? 'inset 0 2px 6px rgba(0,0,0,0.5), 0 0 12px rgba(16,185,129,0.3)'
+        : hovered
+        ? '0 4px 12px rgba(0,0,0,0.4), 0 0 16px rgba(16,185,129,0.2)'
+        : '0 0 8px rgba(16,185,129,0.1)';
+    }
+    if (pressed) return 'inset 0 2px 6px rgba(0,0,0,0.5), 0 0 12px rgba(56,189,248,0.2)';
+    if (hovered) return '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)';
+    return '0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)';
+  };
 
   return (
     <button
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      disabled={flash}
+      disabled={disabled}
       style={{
         padding: '14px 0',
         fontFamily: isBackspace ? 'system-ui' : 'Courier New',
-        fontSize: isBackspace ? 16 : 18,
+        fontSize: isBackspace ? 16 : isConfirm ? 20 : 18,
         fontWeight: 700,
-        cursor: flash ? 'default' : 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         borderRadius: 8,
-        border: `1px solid ${
-          pressed
-            ? 'rgba(56,189,248,0.5)'
-            : hovered
-              ? 'rgba(255,255,255,0.14)'
-              : 'rgba(255,255,255,0.06)'
-        }`,
-        background: pressed
-          ? 'rgba(56,189,248,0.12)'
-          : hovered
-            ? 'rgba(255,255,255,0.07)'
-            : 'rgba(255,255,255,0.03)',
-        color: flash
-          ? '#1e3a2f'
-          : isBackspace
-            ? (hovered ? '#f87171' : '#ef4444')
-            : (hovered ? '#e2e8f0' : '#94a3b8'),
-        boxShadow: pressed
-          ? 'inset 0 2px 6px rgba(0,0,0,0.5), 0 0 12px rgba(56,189,248,0.2)'
-          : hovered
-            ? '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)'
-            : '0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)',
+        border: `1px solid ${getBorder()}`,
+        background: getBg(),
+        color: getColor(),
+        boxShadow: getShadow(),
         transform: pressed ? 'translateY(2px) scale(0.96)' : 'translateY(0) scale(1)',
         transition: 'all 0.12s ease',
-        textShadow: hovered && !flash && !isBackspace
+        textShadow: isConfirm && !disabled
+          ? `0 0 10px rgba(16,185,129,0.6)`
+          : hovered && !flash && !isBackspace && !isConfirm
           ? '0 0 10px rgba(148,163,184,0.4)'
           : 'none',
       }}

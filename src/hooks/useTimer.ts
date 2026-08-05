@@ -1,10 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '../store/gameStore';
 
-/**
- * Menjalankan timer setiap detik selama gameplay aktif.
- * Dipanggil sekali di komponen GameScene.
- */
 export function useTimer() {
   const timerActive = useGameStore((s) => s.timerActive);
   const tickTimer = useGameStore((s) => s.tickTimer);
@@ -25,12 +21,15 @@ export function useTimer() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [timerActive, tickTimer]);
+  }, [timerActive]);
 }
 
-/** Format detik → MM:SS */
-export function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-  const s = (seconds % 60).toString().padStart(2, '0');
+export function formatTime(elapsed: number, limit?: number) {
+  // Kalau ada limit → hitung countdown, kalau tidak → tampilkan elapsed langsung
+  const value = limit !== undefined
+    ? Math.max(0, limit - elapsed)
+    : Math.max(0, elapsed);
+  const m = Math.floor(value / 60).toString().padStart(2, '0');
+  const s = (value % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 }

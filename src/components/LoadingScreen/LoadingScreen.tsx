@@ -129,7 +129,7 @@ export function LoadingScreen({ levelId, onDone }: Props) {
 
   const handleNext = () => {
     setFadeOut(true);
-    setTimeout(onDone, 600);
+    setTimeout(onDone, 900);
   };
 
   if (!level) return null;

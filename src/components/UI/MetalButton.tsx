@@ -37,23 +37,8 @@ export function MetalButton({ onClick, label, danger, small }: Props) {
       }}
     >
       {/* Dekorasi kiri */}
-      <div style={{
-        position: 'absolute', left: 16, top: '50%',
-        transform: 'translateY(-50%)',
-        display: 'flex', alignItems: 'center', gap: 6,
-      }}>
-        <div style={{ width: 16, height: 1, background: '#666' }} />
-        <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#555' }} />
-      </div>
-      {/* Dekorasi kanan */}
-      <div style={{
-        position: 'absolute', right: 16, top: '50%',
-        transform: 'translateY(-50%)',
-        display: 'flex', alignItems: 'center', gap: 6, flexDirection: 'row-reverse',
-      }}>
-        <div style={{ width: 16, height: 1, background: '#666' }} />
-        <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#555' }} />
-      </div>
+     
+     
 
       <span style={{
         color: danger
