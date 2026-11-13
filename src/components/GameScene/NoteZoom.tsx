@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { resolveAssetPath } from '../../lib/assetPath';
 
 interface Props {
   image: string;
@@ -30,7 +31,7 @@ export function NoteZoom({ image, onClose }: Props) {
   }}
 >
       <img
-        src={image}
+        src={resolveAssetPath(image)}
         alt="note"
         onClick={(e) => e.stopPropagation()}
         style={{

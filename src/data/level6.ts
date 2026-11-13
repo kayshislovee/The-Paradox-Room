@@ -4,10 +4,12 @@ import type { Level } from '../types/game.types';
 
 export const LEVEL_6: Level = {
   id: 'level_6',
-  title: 'The Infinity Paradox',
+  title: 'Comeback',
   description: 'Terjebak di taman lab misterius! Selesaikan 3 puzzle untuk membuka pintu keluar.',
   thumbnail: '',
-  timeLimit: 1200,
+  timeLimit: 720,
+  characterAvatar: '/avatars/zkayshi2.png',
+characterName: 'Ethan',
   comicSrc: '/comic/lv6.png', 
   exitDoorPoints: '0,40.7 9.4,40.5 9.5,67 -0.1,67.2',
   sceneTransitionPoints: {
@@ -17,11 +19,57 @@ export const LEVEL_6: Level = {
   dialogMusic: '/audio/dialog_music.mp3',
   starThresholds: [480, 300, 60],
   music: '/audio/lv6_music.mp3',
-  hints: [
-    '💡 Perhatikan warna bunga di taman — cocokkan dengan panel warna.',
-    '💡 Perhatikan parameter lingkungan di sekitar taman — suhu dan kelembaban.',
-    '💡 Masukkan cairan kimia ke dalam botol sesuai urutan warna yang terlihat.',
-  ],
+  hints: [],
+  sceneHints: {
+    scene_garden_1: {
+      char1: [
+        { text: 'Samakan pola urutan bunga dan masukkan ke panel input pattern.', cost: 1 },
+        { text: 'Jawaban: merah-orange-kuning-hijau-putih-hijau-hijau-pink-biru', cost: 2 },
+      ],
+      char2: [
+        { text: 'Samakan pola urutan bunga dan masukkan ke panel input pattern.', cost: 1 },
+        { text: 'Jawaban: merah-orange-kuning-hijau-putih-hijau-hijau-pink-biru', cost: 2 },
+      ],
+      char3: [
+        { text: 'Samakan pola urutan bunga dan masukkan ke panel input pattern.', cost: 1 },
+        { text: 'Jawaban: merah-orange-kuning-hijau-putih-hijau-hijau-pink-biru', cost: 2 },
+      ],
+    },
+    scene_garden_2: {
+      char1: [
+        { text: 'Baca descriptions monster di poster, dan notes yang ada di kanan.', cost: 1 },
+        { text: 'Sesuaikan berdasarkan jumlah kaki, tangan monster, serta temperature dan oksigen yang cocok.', cost: 1 },
+        { text: 'Jawaban: 2, 3, 75 F, 27% oxygen', cost: 2 },
+      ],
+      char2: [
+        { text: 'Baca descriptions monster di poster, dan notes yang ada di kanan.', cost: 1 },
+        { text: 'Sesuaikan berdasarkan jumlah kaki, tangan monster, serta temperature dan oksigen yang cocok.', cost: 1 },
+        { text: 'Jawaban: 2, 3, 75 F, 27% oxygen', cost: 2 },
+      ],
+      char3: [
+        { text: 'Baca descriptions monster di poster, dan notes yang ada di kanan.', cost: 1 },
+        { text: 'Sesuaikan berdasarkan jumlah kaki, tangan monster, serta temperature dan oksigen yang cocok.', cost: 1 },
+        { text: 'Jawaban: 2, 3, 75 F, 27% oxygen', cost: 2 },
+      ],
+    },
+    scene_garden_3: {
+      char1: [
+        { text: 'Baca semua notes yang berhubungan dengan table periodic. Isi notes tsb sesuaikan dengan angka dan warna yang ada di table.', cost: 1 },
+        { text: 'Setelah mendapatkan angka melalui notes, lihat di table dan lihat warna dari angka yang didapat (misal angka 35 berwarna biru, berarti bottle pertama berwarna biru).', cost: 1 },
+        { text: 'Jawaban: biru-kuning-biru-pink', cost: 2 },
+      ],
+      char2: [
+        { text: 'Baca semua notes yang berhubungan dengan table periodic. Isi notes tsb sesuaikan dengan angka dan warna yang ada di table.', cost: 1 },
+        { text: 'Setelah mendapatkan angka melalui notes, lihat di table dan lihat warna dari angka yang didapat (misal angka 35 berwarna biru, berarti bottle pertama berwarna biru).', cost: 1 },
+        { text: 'Jawaban: biru-kuning-biru-pink', cost: 2 },
+      ],
+      char3: [
+        { text: 'Baca semua notes yang berhubungan dengan table periodic. Isi notes tsb sesuaikan dengan angka dan warna yang ada di table.', cost: 1 },
+        { text: 'Setelah mendapatkan angka melalui notes, lihat di table dan lihat warna dari angka yang didapat (misal angka 35 berwarna biru, berarti bottle pertama berwarna biru).', cost: 1 },
+        { text: 'Jawaban: biru-kuning-biru-pink', cost: 2 },
+      ],
+    },
+  },
 
   scenes: [
     // ── SCENE 1 — Panel Warna ────────────────────────────────────────────────
@@ -246,7 +294,7 @@ export const LEVEL_6: Level = {
       id: 'ach_garden_golden',
       title: 'Golden Brain (Garden)',
       description: 'Selesaikan The Infinity Paradox dalam waktu kurang dari 5 menit!',
-      icon: '/achievements/lab.png',
+      icon: '/achievements/lv6.png',
       type: 'time',
       levelId: 'level_6',
       isGolden: true,
@@ -255,23 +303,55 @@ export const LEVEL_6: Level = {
       id: 'ach_garden_complete',
       title: 'Paradox Solver',
       description: 'Berhasil kabur dari The Infinity Paradox!',
-      icon: '/achievements/lab.png',
+      icon: '/achievements/lv6kayu.png',
       type: 'time',
       levelId: 'level_6',
     },
+    {
+      id: 'ach_garden_nohint',
+      title: 'Garden Explorer',
+      description: 'Temukan semua treasure di The Infinity Paradox!',
+      icon: '/achievements/hint.png',
+      type: 'time',
+      levelId: 'level_6',
+    },
+     {
+    id: 'ach_scene1_complete',
+    title: 'Pemecah Paradoks I',
+    description: 'Selesaikan Scene 1 di The Infinity Paradox!',
+    icon: '/achievements/garden.png',
+    type: 'time',
+    levelId: 'level_6',
+  },
+  {
+    id: 'ach_scene2_complete',
+    title: 'Pemecah Paradoks II',
+    description: 'Selesaikan Scene 2 di The Infinity Paradox!',
+    icon: '/achievements/alien.png',
+    type: 'time',
+    levelId: 'level_6',
+  },
+  {
+    id: 'ach_scene3_complete',
+    title: 'Pemecah Paradoks III',
+    description: 'Selesaikan Scene 3 di The Infinity Paradox!',
+    icon: '/achievements/bottle.png',
+    type: 'time',
+    levelId: 'level_6',
+  },
   ],
   // Di dalam LEVEL_6, tambah field sceneDialogs:
 sceneDialogs: {
   scene_garden_2: [
     {
-      character: 'Kayshii',
+      character: 'Ethan',
       text: 'Puzzle pertama selesaii....',
       side: 'left' as const,
       avatarLeft: '/avatars/zkayshi2.png',
       isSystem: false,
     },
      {
-      character: 'Kayshii',
+      character: 'Ethan',
       text: 'Mari kita lihat apa selanjutnya',
       side: 'left' as const,
       avatarLeft: '/avatars/zkayshi4.png',
@@ -315,14 +395,14 @@ sceneDialogs: {
       isSystem: false,
     },
     {
-      character: 'Kayshii',
+      character: 'Ethan',
       text: 'Ohh...Kimia? Menantangku dibidang yang aku kuasai? Tchh...',
       side: 'left' as const,
       avatarLeft: '/avatars/zkayshi5.png',
       isSystem: false,
     },
     {
-      character: 'Kayshii',
+      character: 'Ethan',
       text: 'Ini akan berakhir cepat',
       side: 'left' as const,
       avatarLeft: '/avatars/zkayshi4.png',

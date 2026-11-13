@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { looksLikeImagePath, resolveAssetPath } from '../../lib/assetPath';
 
 export function AchievementPopup() {
   const newAchievement = useGameStore((s) => s.newAchievement);
@@ -45,8 +46,8 @@ export function AchievementPopup() {
       }}>
         {/* Icon */}
         <div style={{ fontSize: 36, flexShrink: 0 }}>
-          {newAchievement.icon.endsWith('.png') ? (
-            <img src={newAchievement.icon} style={{ width: 48, height: 48, objectFit: 'contain' }} />
+          {looksLikeImagePath(newAchievement.icon) ? (
+            <img src={resolveAssetPath(newAchievement.icon)} style={{ width: 48, height: 48, objectFit: 'contain' }} />
           ) : (
             newAchievement.icon
           )}

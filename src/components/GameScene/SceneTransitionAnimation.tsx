@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { LEVELS } from '../../data/levels';
 
-type Phase = 'idle' | 'glow' | 'burst' | 'done';
+type Phase = 'idle' | 'glow' | 'burst' | 'white';
 
 interface Props {
   onTransitionEnd: () => void;
@@ -20,8 +20,8 @@ function toClipPath(pts: { x: number; y: number }[]) {
 }
 
 const DEFAULT_PTS = [
-  { x: 45, y: 40 }, { x: 55, y: 40 },
-  { x: 55, y: 60 }, { x: 45, y: 60 },
+  { x: 45, y: 35 }, { x: 55, y: 35 },
+  { x: 55, y: 65 }, { x: 45, y: 65 },
 ];
 
 export function SceneTransitionAnimation({ onTransitionEnd }: Props) {
@@ -34,19 +34,15 @@ export function SceneTransitionAnimation({ onTransitionEnd }: Props) {
   const [activePts, setActivePts] = useState(DEFAULT_PTS);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // Selalu ambil dari LEVELS lokal — sceneTransitionPoints tidak ada di API
-  const localLevel = LEVELS.find((l) => l.id === currentLevelId);
+  const localLevel    = LEVELS.find((l) => l.id === currentLevelId);
   const transitionMap = (localLevel as any)?.sceneTransitionPoints as Record<string, string> | undefined;
 
   useEffect(() => {
     if (!triggerSceneTransition || phase !== 'idle') return undefined;
 
-    // Ambil points dari activeTransitionSceneId (scene asli sebelum _open)
     const pointsStr = activeTransitionSceneId && transitionMap
       ? transitionMap[activeTransitionSceneId]
       : undefined;
-
-    // Simpan ke STATE supaya render pakai nilai yang benar
     setActivePts(pointsStr ? parsePoints(pointsStr) : DEFAULT_PTS);
 
     timers.current.forEach(clearTimeout);
@@ -58,22 +54,20 @@ export function SceneTransitionAnimation({ onTransitionEnd }: Props) {
     };
 
     setPhase('glow');
-    go(() => setPhase('burst'), 400);
-    go(() => { onTransitionEnd(); }, 700);
-    go(() => { setTriggerSceneTransition(false); }, 750);
+    go(() => setPhase('burst'), 600);
+    go(() => setPhase('white'), 1100);
+    go(() => {
+      // Pindah scene saat putih penuh
+      onTransitionEnd();
+      setTriggerSceneTransition(false);
+      // Reset setelah scene baru render
+      setTimeout(() => setPhase('idle'), 400);
+    }, 1400);
 
     return () => timers.current.forEach(clearTimeout);
   }, [triggerSceneTransition]);
 
-  useEffect(() => {
-    if (!triggerSceneTransition && phase !== 'idle') {
-      const t = setTimeout(() => setPhase('idle'), 400);
-      return () => clearTimeout(t);
-    }
-    return undefined;
-  }, [triggerSceneTransition]);
-
-  if (phase === 'idle' && !triggerSceneTransition) return null;
+  if (phase === 'idle') return null;
 
   const cx = activePts.reduce((s, p) => s + p.x, 0) / activePts.length;
   const cy = activePts.reduce((s, p) => s + p.y, 0) / activePts.length;
@@ -81,49 +75,67 @@ export function SceneTransitionAnimation({ onTransitionEnd }: Props) {
 
   const isGlow  = phase === 'glow';
   const isBurst = phase === 'burst';
+  const isWhite = phase === 'white';
 
   return (
     <>
-      {/* Glow radial dari titik tengah polygon */}
+      {/* Ambient glow */}
       <div style={{
-        position:   'absolute', inset: 0,
-        zIndex:     210,
-        pointerEvents: 'none',
-        background: `radial-gradient(ellipse 50% 60% at ${cx}% ${cy}%,
-          rgba(255,240,200,${isGlow ? 0.6 : isBurst ? 1 : 0}) 0%,
-          rgba(255,220,150,${isGlow ? 0.3 : isBurst ? 0.7 : 0}) 45%,
-          transparent 80%)`,
-        filter:     'blur(18px)',
-        transition: 'background 0.35s ease',
+        position: 'absolute', inset: 0,
+        pointerEvents: 'none', zIndex: 210,
+        background: `radial-gradient(ellipse 40% 60% at ${cx}% ${cy}%,
+          rgba(255,240,200,${isGlow ? 0.4 : isBurst ? 0.9 : 1}) 0%,
+          rgba(255,220,150,${isGlow ? 0.2 : isBurst ? 0.5 : 0.8}) 40%,
+          transparent 70%)`,
+        filter: 'blur(20px)',
+        transition: 'background 0.5s ease',
       }} />
 
       {/* Cahaya dalam polygon */}
       <div style={{
         position: 'absolute', inset: 0,
-        pointerEvents: 'none', zIndex: 211,
-        clipPath,
-        opacity: isGlow ? 0.9 : 1,
-        transition: 'opacity 0.3s ease',
+        pointerEvents: 'none', zIndex: 212,
+        clipPath, WebkitClipPath: clipPath,
+        opacity: isGlow ? 0.7 : 1,
+        transition: 'opacity 0.4s ease',
       }}>
         <div style={{
           position: 'absolute', inset: 0,
           background: `radial-gradient(ellipse at ${cx}% ${cy}%,
             rgba(255,255,255,1) 0%,
-            rgba(255,240,180,0.9) 50%,
+            rgba(255,240,180,0.95) 30%,
+            rgba(255,200,100,0.7) 60%,
             transparent 100%)`,
+          transform: isBurst || isWhite ? 'scale(1.2)' : 'scale(1)',
+          transition: 'transform 0.8s ease',
         }} />
       </div>
 
-      {/* Burst putih memancar dari titik polygon */}
+      {/* Garis tepi */}
       <div style={{
-        position:      'absolute', inset: 0,
-        zIndex:        212,
+        position: 'absolute', inset: 0,
+        pointerEvents: 'none', zIndex: 211,
+        clipPath, WebkitClipPath: clipPath,
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          border: `3px solid rgba(255,255,200,${isGlow ? 0.6 : 1})`,
+          boxShadow: `
+            0 0 ${isGlow ? 20 : 60}px rgba(255,240,150,0.9),
+            0 0 ${isGlow ? 40 : 120}px rgba(255,200,100,0.6),
+            inset 0 0 ${isGlow ? 20 : 60}px rgba(255,255,255,0.8)`,
+          transition: 'all 0.5s ease',
+        }} />
+      </div>
+
+      {/* White fullscreen — pakai fixed supaya menutupi SELURUH layar termasuk HUD */}
+      <div style={{
+        position: 'fixed', inset: 0,
+        background: '#ffffff',
+        opacity: isWhite ? 1 : 0,
+        transition: 'opacity 0.3s ease-in',
         pointerEvents: 'none',
-        background:    '#ffffff',
-        clipPath:      isBurst
-          ? `circle(200% at ${cx}% ${cy}%)`
-          : `circle(0% at ${cx}% ${cy}%)`,
-        transition:    'clip-path 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+        zIndex: 99999,
       }} />
     </>
   );

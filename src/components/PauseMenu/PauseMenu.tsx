@@ -1,28 +1,83 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useGameStore, useSettingsStore } from '../../store/gameStore';
 import { MetalButton } from '../UI/MetalButton';
+import { multiplayer } from '../../lib/multiplayer';
 
 export function PauseMenu() {
   const [isPaused, setIsPaused] = useState(false);
   const [animState, setAnimState] = useState<'hidden' | 'entering' | 'visible' | 'leaving'>('hidden');
+  const localPauseRef = useRef(false);
   const { goTo, pauseTimer, resumeTimer } = useGameStore();
+  const remotePaused = useGameStore((s) => s.remotePaused);
+  const remotePausedBy = useGameStore((s) => s.remotePausedBy);
   const { musicVolume, musicMuted, setMusicVolume, toggleMusicMuted } = useSettingsStore();
+  const lobbyCode = useGameStore((s) => s.lobbyCode);
+  const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api';
+
+  const handleExitLobby = async () => {
+    const code = useGameStore.getState().lobbyCode; // ← ambil langsung dari state
+    const currentToken = useGameStore.getState().token;
+
+    if (!code || !currentToken) {
+      // Tidak ada lobby, langsung ke menu
+      setIsPaused(false);
+      resumeTimer();
+      goTo('splash');
+      return;
+    }
+
+    await fetch(`${API_BASE}/lobby/${code}/exit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentToken}`,
+      },
+    });
+
+    useGameStore.getState().setLobbyCode(null);
+    setIsPaused(false);
+    resumeTimer();
+    goTo('splash');
+  };
 
   const handlePause = () => {
+    localPauseRef.current = true;
     setIsPaused(true);
     setAnimState('entering');
     pauseTimer();
+    // Sinkronkan ke player lain (multiplayer level 7).
+    if (lobbyCode) {
+      multiplayer.syncAction('timer_paused', { paused: true });
+    }
     setTimeout(() => setAnimState('visible'), 10);
   };
 
   const handleResume = () => {
     setAnimState('leaving');
     setTimeout(() => {
+      localPauseRef.current = false;
       setIsPaused(false);
       setAnimState('hidden');
       resumeTimer();
+      if (lobbyCode) {
+        multiplayer.syncAction('timer_paused', { paused: false });
+      }
     }, 400);
   };
+
+  // Player lain pause → tampilkan pause screen juga (read-only, tunggu resume).
+  useEffect(() => {
+    if (remotePaused) {
+      setIsPaused(true);
+      setAnimState('visible');
+      pauseTimer();
+    } else if (!localPauseRef.current && isPaused) {
+      // remote resume → tutup modal (hanya jika bukan pauser sendiri)
+      setIsPaused(false);
+      setAnimState('hidden');
+      resumeTimer();
+    }
+  }, [remotePaused]);
 
   return (
     <>
@@ -53,7 +108,7 @@ export function PauseMenu() {
         ⏸ PAUSE
       </button>
 
-      {isPaused && (
+      {(isPaused || remotePaused) && (
         <>
           {/* Overlay */}
           <div style={{
@@ -95,6 +150,11 @@ export function PauseMenu() {
               }}>
                 PAUSED
               </div>
+              {remotePaused && (
+                <div style={{ color: '#fbbf24', fontSize: 11, fontFamily: 'monospace', marginBottom: 12, textAlign: 'center' }}>
+                  {remotePausedBy} menjeda game. Menunggu resume...
+                </div>
+              )}
               <div style={{
                 display: 'flex', alignItems: 'center',
                 justifyContent: 'center', gap: 12, marginTop: 10,
@@ -217,10 +277,21 @@ export function PauseMenu() {
 
             {/* Tombol */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
-              <MetalButton
-                onClick={(e) => { e.stopPropagation(); handleResume(); }}
-                label="LANJUTKAN"
-              />
+              {!remotePaused && (
+                <MetalButton
+                  onClick={(e) => { e.stopPropagation(); handleResume(); }}
+                  label="LANJUTKAN"
+                />
+              )}
+              {remotePaused && (
+                <div style={{
+                  padding: '10px 0', textAlign: 'center',
+                  color: '#fbbf24', fontSize: 11, fontFamily: 'monospace',
+                  border: '1px solid rgba(251,191,36,0.3)', borderRadius: 6,
+                }}>
+                  Menunggu {remotePausedBy} melanjutkan...
+                </div>
+              )}
               <MetalButton
                 onClick={(e) => {
                   e.stopPropagation();
@@ -242,6 +313,13 @@ export function PauseMenu() {
                 label="MENU UTAMA"
                 small
               />
+              {lobbyCode && (
+                <MetalButton
+                  onClick={(e) => { e.stopPropagation(); handleExitLobby(); }}
+                  label="KELUAR LOBBY"
+                  small
+                />
+              )}
             </div>
           </div>
         </>

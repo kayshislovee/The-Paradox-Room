@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LEVELS } from '../../data/levels';
+import { resolveAssetPath } from '../../lib/assetPath';
 
 interface Props {
   levelId: string;
@@ -31,11 +32,19 @@ export function LoadingScreen({ levelId, onDone }: Props) {
     const audioUrls: string[] = [];
 
     level.scenes.forEach((scene) => {
-      if (scene.backgroundImage) imageUrls.push(scene.backgroundImage);
+      const bg = resolveAssetPath(scene.backgroundImage);
+      if (bg) imageUrls.push(bg);
       scene.hotspots.forEach((hs) => {
-        if (hs.image) imageUrls.push(hs.image);
-        if (hs.action.type === 'open_note') imageUrls.push(hs.action.image);
-        if (hs.action.type === 'open_zoom') imageUrls.push(hs.action.zoomImage);
+        const hsImage = resolveAssetPath(hs.image);
+        if (hsImage) imageUrls.push(hsImage);
+        if (hs.action.type === 'open_note') {
+          const img = resolveAssetPath(hs.action.image);
+          if (img) imageUrls.push(img);
+        }
+        if (hs.action.type === 'open_zoom') {
+          const img = resolveAssetPath(hs.action.zoomImage);
+          if (img) imageUrls.push(img);
+        }
       });
     });
 

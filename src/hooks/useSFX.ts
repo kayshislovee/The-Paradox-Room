@@ -21,6 +21,6 @@ export function useSFX() {
     playError: () => playSound('/audio/sfx/wrong.mp3', 0.6),
     playHint: () => playSound('/audio/sfx/hint.mp3', 0.6),
     playNotes: () => playSound('/audio/sfx/notes.mp3', 0.6),
-    
+    playNewGame: () => playSound('/audio/sfx/splash.mp3', 0.7),
   };
 }

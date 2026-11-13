@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { DialogLine } from '../../types/game.types';
 import { useMusic } from '../../hooks/useMusic';
+import { resolveAssetPath } from '../../lib/assetPath';
 
 interface Props {
   lines: DialogLine[];
@@ -42,12 +43,8 @@ export function DialogScreen({ lines, background, music, onDone }: Props) {
     return () => clearInterval(interval);
   }, [currentIndex]);
 
-  const handleNext = () => {
-    if (isTyping) {
-      setDisplayText(currentLine.text);
-      setIsTyping(false);
-      return;
-    }
+  // Maju ke baris berikutnya (atau tutup dialog bila baris terakhir)
+  const advanceLine = () => {
     if (isLast) {
       setFadeOut(true);
       setTimeout(onDone, 600);
@@ -56,14 +53,25 @@ export function DialogScreen({ lines, background, music, onDone }: Props) {
     }
   };
 
+  // Klik di mana pun: kalau masih mengetik → langsung tampilkan teks penuh;
+  // kalau teks sudah penuh → lanjut ke baris berikutnya.
+  const handleNext = () => {
+    if (isTyping) {
+      setDisplayText(currentLine.text);
+      setIsTyping(false);
+      return;
+    }
+    advanceLine();
+  };
+
   const handleSkip = () => {
     setFadeOut(true);
     setTimeout(onDone, 600);
   };
 
-  // Tentukan avatar yang ditampilkan
-  const leftAvatar = currentLine.avatarLeft ?? (currentLine.side === 'left' ? currentLine.avatar : undefined);
-  const rightAvatar = currentLine.avatarRight ?? (currentLine.side === 'right' ? currentLine.avatar : undefined);
+  // Tentukan avatar yang ditampilkan (resolusi path upload admin → /storage/...)
+  const leftAvatar = resolveAssetPath(currentLine.avatarLeft ?? (currentLine.side === 'left' ? currentLine.avatar : undefined));
+  const rightAvatar = resolveAssetPath(currentLine.avatarRight ?? (currentLine.side === 'right' ? currentLine.avatar : undefined));
 
   return (
     <div
@@ -272,18 +280,24 @@ export function DialogScreen({ lines, background, music, onDone }: Props) {
             )}
           </p>
 
-          {!isTyping && (
-            <div style={{
+          {/* Tombol LANJUT — langsung lompat ke baris berikutnya (bisa saat masih mengetik) */}
+          <button
+            onClick={(e) => { e.stopPropagation(); advanceLine(); }}
+            style={{
               position: 'absolute',
               bottom: 16, right: 40,
+              background: 'transparent',
+              border: 'none',
               color: currentLine.isSystem ? '#38f84eff' : '#c8b89a',
               fontSize: 12, letterSpacing: 2,
               animation: 'bounce 1s ease-in-out infinite',
               fontFamily: currentLine.isSystem ? 'monospace' : 'inherit',
-            }}>
-              {isLast ? 'MULAI ▶' : 'LANJUT ▶'}
-            </div>
-          )}
+              cursor: 'pointer',
+              padding: '4px 8px',
+            }}
+          >
+            {isLast ? 'MULAI ▶' : 'LANJUT ▶'}
+          </button>
         </div>
       </div>
 

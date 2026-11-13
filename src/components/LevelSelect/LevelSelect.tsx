@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { useMusic } from '../../hooks/useMusic';
 import { MetalButton } from '../UI/MetalButton';
@@ -13,17 +13,25 @@ const LEVEL_BG: Record<string, string> = {
   level_3: '/backgrounds/library.png',
   level_4: '/backgrounds/minimarket.png',
   level_5: '/backgrounds/toystore.png',
+  level_6: '/backgrounds/elements.png',
+  level_7: '/backgrounds/scene5.png',
 };
 
 export function LevelSelect({ onStartLevel }: Props) {
   const goTo          = useGameStore((s) => s.goTo);
   const levelProgress = useGameStore((s) => s.levelProgress);
+  const loadLevels    = useGameStore((s) => s.loadLevels);
   const levels        = useGameStore((s) => s.levels); // ← dari store/API
   useMusic('/audio/menu_music.mp3');
+
+  useEffect(() => {
+    loadLevels();
+  }, [loadLevels]);
 
   const [previewId, setPreviewId]     = useState<string>(levels[0]?.id ?? '');
   const [prevBg, setPrevBg]           = useState<string>('');
   const [transitioning, setTransitioning] = useState(false);
+  const [mpOnlyOpen, setMpOnlyOpen]   = useState(false);
 
   const handleHover = (levelId: string) => {
     if (levelId === previewId) return;
@@ -39,7 +47,7 @@ export function LevelSelect({ onStartLevel }: Props) {
 
   return (
     <div style={{
-      width: '100%', height: '100%',
+      width: '100%', height: '100%',left:"2%",
       background: '#0d0d0d',
       display: 'flex',
       fontFamily: "'Georgia', serif",
@@ -131,15 +139,16 @@ export function LevelSelect({ onStartLevel }: Props) {
       {/* ── PANEL KIRI — daftar level ── */}
       <div style={{
         position: 'relative', zIndex: 1,
-        width: 420, minWidth: 360,
+        width: 430, minWidth: 390,
         display: 'flex', flexDirection: 'column',
         justifyContent: 'center',
-        padding: '40px 40px 40px 48px',
+        padding: '24px 32px',
         background: 'linear-gradient(to right, #0d0d0d 80%, transparent)',
         minHeight: '100%',
+        overflow: 'hidden',
       }}>
 
-        <div style={{ marginBottom: 36 }}>
+        <div style={{ marginBottom: 16, flexShrink: 0 }}>
           <div style={{
             color: '#c8b89a', fontSize: 11, letterSpacing: 6,
             textTransform: 'uppercase', marginBottom: 6, opacity: 0.6,
@@ -161,13 +170,18 @@ export function LevelSelect({ onStartLevel }: Props) {
         </div>
 
         <div style={{
-          display: 'flex', flexDirection: 'column', gap: 10,
-          overflowY: 'auto', maxHeight: '55vh', paddingRight: 6,
+          display: 'flex', flexDirection: 'column', gap: 8,
+          overflow: 'hidden',
+          padding: '6px 10px 6px 6  px',
+          flexShrink: 0,
         }}>
           {levels.map((level, idx) => {
             const progress = levelProgress[level.id];
             const stars    = progress?.stars ?? 0;
-            const isActive = previewId === level.id;
+          const isActive = previewId === level.id;
+
+        const isLocked = level.isLocked ?? false;
+
 
             return (
               <LevelCard
@@ -177,37 +191,99 @@ export function LevelSelect({ onStartLevel }: Props) {
                 thumbnail={level.thumbnail}
                 stars={stars}
                 isActive={isActive}
-                isLocked={level.isLocked ?? false}
-                onClick={() => {
-                  if (level.isLocked) return; // blokir kalau terkunci
-                  onStartLevel(level.id);
-                }}
+                 isLocked={isLocked}
+                 isMultiplayerOnly={level.id === 'level_7'}
+    onClick={() => {
+  if (isLocked) {
+    alert('Selesaikan semua level 1-5 terlebih dahulu!');
+    return;
+  }
+  onStartLevel(level.id);
+}}
                 onHover={() => handleHover(level.id)}
               />
             );
           })}
         </div>
 
-        <div style={{ marginTop: 24 }}>
+        <div style={{ marginTop: 16, flexShrink: 0 }}>
           <MetalButton
             onClick={(e) => { e.stopPropagation(); goTo('splash'); }}
-            label="← Back"
-            small
-          />
+             
+          >
+            ← Back
+          </MetalButton>
         </div>
       </div>
+
+      {/* Modal: Level 7 hanya multiplayer */}
+      {mpOnlyOpen && (
+        <div
+          onClick={() => setMpOnlyOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 10000,
+            background: 'rgba(0,0,0,0.75)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'linear-gradient(180deg, #2a2a2a 0%, #181818 40%, #0e0e0e 60%, #242424 100%)',
+              border: '1px solid #444',
+              borderRadius: 8,
+              padding: '32px 40px',
+              maxWidth: 420, width: '90%',
+              textAlign: 'center',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.9)',
+              fontFamily: "'Georgia', serif",
+            }}
+          >
+            <div style={{ fontSize: 48, marginBottom: 12 }}>👥</div>
+            <div style={{
+              color: '#e8d5b7', fontSize: 18, fontWeight: 700,
+              letterSpacing: 2, marginBottom: 12, textTransform: 'uppercase',
+              textShadow: '0 4px 20px rgba(0,0,0,0.9)',
+            }}>
+              Mode Multiplayer
+            </div>
+            <div style={{ color: '#c8b89a', fontSize: 13, lineHeight: 1.6, marginBottom: 24 }}>
+              Level 7 (Broken Paradox) hanya bisa dimainkan di mode Multiplayer.
+              <br />
+              Pilih <b>MULTIPLAYER</b> dari menu utama untuk memainkannya.
+            </div>
+            <button
+              onClick={() => setMpOnlyOpen(false)}
+              style={{
+                padding: '10px 28px',
+                background: 'linear-gradient(180deg, #3a3a3a 0%, #181818 40%, #0e0e0e 60%, #242424 100%)',
+                border: '1px solid #c8b89a',
+                borderRadius: 4,
+                color: '#e8d5b7',
+                fontSize: 12, fontWeight: 700,
+                letterSpacing: 2, textTransform: 'uppercase',
+                cursor: 'pointer', fontFamily: "'Georgia', serif",
+              }}
+            >
+              Mengerti
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ── LevelCard ────────────────────────────────────────────────────────────────
-function LevelCard({ index, title, thumbnail, stars, isActive, isLocked, onClick, onHover }: {
+function LevelCard({ index, title, thumbnail, stars, isActive, isLocked, isMultiplayerOnly, onClick, onHover }: {
   index: number;
   title: string;
   thumbnail: string;
   stars: number;
   isActive: boolean;
   isLocked: boolean;
+  isMultiplayerOnly?: boolean;
   onClick: () => void;
   onHover: () => void;
 }) {
@@ -262,7 +338,7 @@ function LevelCard({ index, title, thumbnail, stars, isActive, isLocked, onClick
 
       {/* Ikon kunci kalau locked, thumbnail kalau tidak */}
       <div style={{ fontSize: 30, minWidth: 40 }}>
-        {isLocked ? '🔒' : thumbnail}
+        {isLocked ? '🔒' : isMultiplayerOnly ? '👥' : thumbnail}
       </div>
 
       <div style={{ flex: 1 }}>

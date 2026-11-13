@@ -1,6 +1,7 @@
 import { useGameStore } from '../../store/gameStore';
 import type { Treasure } from '../../types/game.types';
 import { useSFX } from '../../hooks/useSFX';
+import { resolveTreasureImagePath } from '../../lib/treasureImage';
 
 interface Props {
   treasures: Treasure[];
@@ -40,7 +41,7 @@ export function TreasureLayer({ treasures }: Props) {
           >
             {t.image && (
               <img
-                src={t.image}
+                src={resolveTreasureImagePath(t.image)}
                 alt="treasure"
                 style={{
                   width: '100%',

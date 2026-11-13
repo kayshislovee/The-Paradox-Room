@@ -27,6 +27,38 @@
   overflow: hidden;
 }
 
+.libraryKeypadBox {
+  width: min(900px, 94vw);
+  max-height: 92vh;
+  overflow: visible;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.libraryKeypadBox::before,
+.libraryKeypadBox::after {
+  display: none;
+}
+
+.libraryKeypadBox .content {
+  padding: 0;
+}
+
+.libraryKeypadCloseBtn {
+  position: absolute;
+  top: -2rem;
+  right: 0;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
 /* Garis dekoratif horizontal atas */
 .box::before {
   content: '';

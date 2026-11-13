@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { pauseMusic, resumeMusic } from '../../hooks/useMusic';
+import { resolveAssetPath } from '../../lib/assetPath';
 
 export interface ComicPanel {
-  // Posisi & ukuran panel dalam % gambar (untuk clip-path reveal)
   x: number;
   y: number;
   width: number;
   height: number;
-  // Animasi masuk panel
   enterFrom?: 'fade' | 'scale' | 'slide-left' | 'slide-right' | 'slide-up';
-  // Efek saat muncul
   effect?: 'flash' | 'shake' | 'none';
-  // Durasi animasi (ms), default 380
   duration?: number;
   sfx?: string;
 }
@@ -23,7 +20,8 @@ interface Props {
   isLastPage?: boolean;
 }
 
-export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
+export function ComicScene({ src, panels, onDone }: Props) {
+  const resolvedSrc = resolveAssetPath(src) ?? src;
   const [revealedCount, setRevealedCount] = useState(0);
   const [fadeIn, setFadeIn] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
@@ -34,30 +32,28 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
 
   const allRevealed = revealedCount >= panels.length;
 
-  // Hentikan musik saat scene komik aktif, lalu resume saat selesai/exit
   useEffect(() => {
     pauseMusic();
-    return () => {
-      resumeMusic();
-    };
+    return () => { resumeMusic(); };
   }, []);
 
-  // Reset state jika sumber gambar komik berubah (ganti halaman)
+  // Reset state saat src berubah (ganti halaman)
   useEffect(() => {
     setRevealedCount(0);
-    setFadeIn(true);
+    setFadeIn(false);
     setFadeOut(false);
     setShaking(false);
     setSkipAll(false);
     setHint(true);
-  }, [src]);
+    isTransitioning.current = false;
 
-  // Efek kemunculan awal dan auto-reveal panel pertama
-  useEffect(() => {
-    const t1 = setTimeout(() => setFadeIn(true), 80);
+    // Fade in lalu muncul panel pertama
+    const t1 = setTimeout(() => {
+      setFadeIn(true);
+    }, 80);
     const t2 = setTimeout(() => {
-      if (revealedCount === 0) setRevealedCount(1);
-    }, 600);
+      setRevealedCount(1);
+    }, 480);
     const t3 = setTimeout(() => setHint(false), 3500);
 
     return () => {
@@ -65,9 +61,9 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
       clearTimeout(t2);
       clearTimeout(t3);
     };
-  }, []);
+  }, [src]);
 
-  // Shake & SFX handler saat panel dengan efek khusus muncul
+  // Shake & SFX saat panel baru muncul
   useEffect(() => {
     if (revealedCount < 1) return;
     const panel = panels[revealedCount - 1];
@@ -80,45 +76,43 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
     if (panel?.sfx) {
       const audio = new Audio(panel.sfx);
       audio.volume = 0.7;
-      audio.play().catch(() => {}); // Penanganan autoplay restriction browser
+      audio.play().catch(() => {});
     }
   }, [revealedCount, panels]);
 
   const handleClick = useCallback(() => {
     if (isTransitioning.current || fadeOut) return;
 
-    if (allRevealed) {
-      if (isLastPage) {
-        setFadeOut(true);
-        setTimeout(onDone, 500);
-      } else {
-        onDone();
-      }
-      return;
-    }
+    // Semua panel sudah muncul — klik area tidak keluar
+    // harus tekan tombol LANJUT
+    if (allRevealed) return;
 
     isTransitioning.current = true;
     setTimeout(() => {
       setRevealedCount((c) => c + 1);
       isTransitioning.current = false;
     }, 80);
-  }, [allRevealed, fadeOut, isLastPage, onDone]);
+  }, [allRevealed, fadeOut]);
+
+  const handleDone = useCallback(() => {
+    setFadeOut(true);
+    setTimeout(onDone, 500);
+  }, [onDone]);
 
   const handleSkip = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       if (allRevealed) {
-        setFadeOut(true);
-        setTimeout(onDone, 500);
+        handleDone();
         return;
       }
       setSkipAll(true);
       setRevealedCount(panels.length);
     },
-    [allRevealed, panels.length, onDone]
+    [allRevealed, panels.length, handleDone]
   );
 
-  // Keyboard Navigation (Spasi, Enter, Panah Kanan)
+  // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (['Space', 'Enter', 'ArrowRight'].includes(e.code)) {
@@ -133,22 +127,19 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
   return (
     <div
       onClick={handleClick}
-      style={
-        {
-          position: 'fixed',
-          inset: 0,
-          background: '#111',
-          cursor: 'pointer',
-          userSelect: 'none',
-          zIndex: 9000,
-          overflow: 'hidden',
-          opacity: fadeIn && !fadeOut ? 1 : 0,
-          transition: fadeOut ? 'opacity 0.5s ease' : 'opacity 0.45s ease',
-          '--comic-src': `url(${src})`,
-        } as React.CSSProperties
-      }
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: '#111',
+        cursor: allRevealed ? 'default' : 'pointer',
+        userSelect: 'none',
+        zIndex: 9000,
+        overflow: 'hidden',
+        opacity: fadeIn && !fadeOut ? 1 : 0,
+        transition: fadeOut ? 'opacity 0.5s ease' : 'opacity 0.45s ease',
+      }}
     >
-      {/* ── Halaman komik penuh — redup sebagai background ── */}
+      {/* Halaman komik penuh — redup sebagai background */}
       <div
         style={{
           position: 'absolute',
@@ -159,16 +150,10 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
           animation: shaking ? 'shake 0.45s ease' : 'none',
         }}
       >
-        <div
-          style={{
-            position: 'relative',
-            width: '100vw',
-            height: '100vh',
-          }}
-        >
+        <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
           {/* Background komik redup */}
           <img
-            src={src}
+            src={resolvedSrc}
             alt="Comic"
             draggable={false}
             style={{
@@ -203,7 +188,7 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
               }}
             >
               <PanelContent
-                src={src}
+                src={resolvedSrc}
                 panel={panel}
                 isNewest={i === revealedCount - 1 && !skipAll}
               />
@@ -212,27 +197,23 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
         </div>
       </div>
 
-      {/* ── Vignette ── */}
+      {/* Vignette */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           zIndex: 50,
-          background:
-            'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.65) 100%)',
+          background: 'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.65) 100%)',
           pointerEvents: 'none',
         }}
       />
 
-      {/* ── Progress bar bawah ── */}
+      {/* Progress bar */}
       <div
         style={{
           position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 3,
-          zIndex: 60,
+          bottom: 0, left: 0, right: 0,
+          height: 3, zIndex: 60,
           background: 'rgba(255,255,255,0.08)',
         }}
       >
@@ -240,40 +221,37 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
           style={{
             height: '100%',
             width: `${(revealedCount / panels.length) * 100}%`,
-            background:
-              'linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.7))',
+            background: 'linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.7))',
             transition: 'width 0.4s ease',
           }}
         />
       </div>
 
-      {/* ── Hint ── */}
+      {/* Hint */}
       <div
         style={{
           position: 'absolute',
-          bottom: 18,
-          right: 20,
+          bottom: 18, right: allRevealed ? 120 : 20,
           color: 'rgba(255,255,255,0.5)',
           fontSize: 11,
           fontFamily: 'sans-serif',
           letterSpacing: 2,
           textTransform: 'uppercase',
           opacity: hint ? 1 : 0,
-          transition: 'opacity 0.5s',
+          transition: 'opacity 0.5s, right 0.3s',
           animation: 'pulse 1.8s ease infinite',
           pointerEvents: 'none',
           zIndex: 60,
         }}
       >
-        {allRevealed ? 'Tap untuk lanjut →' : 'Tap untuk panel berikutnya →'}
+        {allRevealed ? '' : 'Tap untuk panel berikutnya →'}
       </div>
 
-      {/* ── Counter ── */}
+      {/* Counter */}
       <div
         style={{
           position: 'absolute',
-          bottom: 18,
-          left: 20,
+          bottom: 18, left: 20,
           color: 'rgba(255,255,255,0.3)',
           fontSize: 11,
           fontFamily: 'monospace',
@@ -285,19 +263,16 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
         {revealedCount} / {panels.length}
       </div>
 
-      {/* ── Tombol Skip / Lanjut ── */}
+      {/* Tombol SKIP / LANJUT */}
       <button
         onClick={handleSkip}
         style={{
           position: 'absolute',
-          top: 16,
-          right: 16,
+          top: 16, right: 16,
           background: allRevealed
             ? 'rgba(255,255,255,0.15)'
             : 'rgba(255,255,255,0.07)',
-          border: `1px solid ${
-            allRevealed ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)'
-          }`,
+          border: `1px solid ${allRevealed ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)'}`,
           borderRadius: 6,
           color: allRevealed ? '#fff' : 'rgba(255,255,255,0.45)',
           fontSize: 11,
@@ -344,7 +319,7 @@ export function ComicScene({ src, panels, onDone, isLastPage }: Props) {
   );
 }
 
-// Sub-komponen untuk konten panel dengan animasi reveal
+// ── Sub-komponen panel ────────────────────────────────────────────────────────
 function PanelContent({
   src,
   panel,
@@ -354,6 +329,7 @@ function PanelContent({
   panel: ComicPanel;
   isNewest: boolean;
 }) {
+  const resolvedSrc = resolveAssetPath(src) ?? src;
   const [visible, setVisible] = useState(false);
   const [flash, setFlash] = useState(false);
   const dur = panel.duration ?? 380;
@@ -396,7 +372,7 @@ function PanelContent({
         }}
       >
         <img
-          src={src}
+          src={resolvedSrc}
           alt=""
           draggable={false}
           style={{
@@ -412,13 +388,12 @@ function PanelContent({
         />
       </div>
 
-      {/* Highlight border saat panel baru muncul */}
+      {/* Highlight border panel terbaru */}
       {isNewest && visible && (
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            border: '2px solid rgba(255,255,255,0.0)',
             boxShadow: 'inset 0 0 0 2px rgba(255,255,255,0.6)',
             animation: 'borderFade 1.2s ease forwards',
             pointerEvents: 'none',

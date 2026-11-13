@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { resolveAssetPath } from '../../lib/assetPath';
 
 interface Props {
   image: string;
@@ -76,7 +77,7 @@ export function ZoomableNote({ image, onClose }: Props) {
     >
       {/* Gambar notes */}
       <img
-        src={image}
+        src={resolveAssetPath(image)}
         alt="note"
         draggable={false}
         style={{

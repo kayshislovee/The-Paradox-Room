@@ -27,6 +27,17 @@ export interface ApiScene {
   exit_puzzle_id: string | null;
   order: number;
   hotspots: ApiHotspot[];
+  char1_layer: unknown;
+  char2_layer: unknown;
+  char3_layer: unknown;
+  char1_sub_views: unknown;
+  char2_sub_views: unknown;
+  char3_sub_views: unknown;
+  scene_comic: unknown;
+  comic_pages: unknown;
+  highlight_hotspots: string[] | null;
+  intro_dialog: unknown;
+  auto_switch_char: string | null;
 }
 
 export interface ApiPuzzle {
@@ -36,6 +47,7 @@ export interface ApiPuzzle {
   title: string;
   description: string;
   answer: string;
+  symbol_answer: unknown;
   max_digits: number | null;
   pattern_size: number | null;
   clue_ids: string[] | null;
@@ -77,6 +89,36 @@ export interface ApiLevel {
   puzzles: ApiPuzzle[];
   hints: ApiHint[];
   dialog_lines: ApiDialogLine[];
+  scene_hints: unknown;
+  scene_dialogs: unknown;
+  scene_comics: unknown;
+  characters: unknown;
+  comic_src: string | null;
+  exit_door_points: string | null;
+  exit_light_pos: unknown;
+  treasures: Array<{
+    id: number;
+    treasure_key: string;
+    name: string | null;
+    description: string | null;
+    achievement_id: number | null;
+    scene_id: string | null;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    image: string | null;
+  }>;
+  achievements: Array<{
+    id: number;
+    achievement_key: string;
+    title: string;
+    description: string;
+    icon: string;
+    type: string;
+    is_golden: boolean;
+    time_threshold: number | null;
+  }>;
 }
 
 export interface ApiLeaderboardEntry {
@@ -315,8 +357,9 @@ export async function fetchMyTreasures(token: string): Promise<string[]> {
   const res = await fetch(`${API_BASE}/treasures/my`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
-  if (!res.ok) return [];
-  return res.json();
+  if (!res.ok) throw new Error('fetchMyTreasures failed');
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 }
 
 // Di useapi.ts — tambahkan di bagian atas, setelah API_BASE
