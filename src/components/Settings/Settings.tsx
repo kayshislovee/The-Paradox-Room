@@ -4,16 +4,8 @@ import { MetalButton } from '../UI/MetalButton';
 
 export function Settings() {
   const goTo = useGameStore((s) => s.goTo);
-  const { musicVolume, musicMuted, setMusicVolume, toggleMusicMuted, resetProgress } =
-    useSettingsStore();
+  const { musicVolume, musicMuted, setMusicVolume, toggleMusicMuted } = useSettingsStore();
   useMusic('/audio/menu_music.mp3');
-
-  const handleReset = () => {
-    if (window.confirm('Reset semua progress? Ini tidak bisa dibatalkan.')) {
-      resetProgress();
-      goTo('splash');
-    }
-  };
 
   return (
     <div style={{
@@ -83,11 +75,6 @@ export function Settings() {
               {Math.round(musicVolume * 100)}%
             </span>
           </div>
-        </SettingRow>
-
-        {/* Reset */}
-        <SettingRow label="PROGRESS">
-          <MetalButton onClick={(e) => { e.stopPropagation(); handleReset(); }} label="RESET PROGRESS" danger small />
         </SettingRow>
 
         {/* Back */}

@@ -25,35 +25,41 @@ const level      = storeLevel ?? localLevel;
 
 const timeLeft   = Math.max(0, (level?.timeLimit ?? 0) - timeElapsed);
 const timeLimit  = level?.timeLimit ?? 1;
-const thresh3    = level?.starThresholds?.[0] ?? 0;
-const thresh2    = level?.starThresholds?.[1] ?? 0;
+const rawThresholds = level?.starThresholds as any;
+const parsedThresholds: number[] = Array.isArray(rawThresholds)
+  ? rawThresholds
+  : typeof rawThresholds === 'string'
+    ? (rawThresholds as string).split(',').map(Number)
+    : [360, 200, 60];
 
+const thresh3 = parsedThresholds[0] ?? 360;
+const thresh2 = parsedThresholds[1] ?? 200;
+const thresh1 = parsedThresholds[2] ?? 60;
 // isTimeout DULU sebelum stars:
 const isTimeout  = !!(level && timeElapsed >= level.timeLimit);
 
 // Baru stars pakai isTimeout:
-const stars = isTimeout ? 0
-  : timeLeft >= thresh3 ? 3
+const stars = timeLeft >= thresh3 ? 3
   : timeLeft >= thresh2 ? 2
-  : 1;
+  : timeLeft >= thresh1 ? 1
+  : 0;
 
-const currentIdx = LEVELS.findIndex((l) => l.id === currentLevelId);
-const nextLevel  = LEVELS[currentIdx + 1];
-  // timeLeft = sisa waktu saat level selesai
+const storeLevels = useGameStore((s) => s.levels);
+const orderedLevels = storeLevels.length > 0 ? storeLevels : LEVELS;
+const currentIdx = orderedLevels.findIndex((l) => l.id === currentLevelId);
+const nextLevel  = orderedLevels[currentIdx + 1];
 
-  // Bar: 0% = waktu habis, 100% = timeLimit penuh
-  // Posisi marker bintang berdasarkan threshold relatif ke timeLimit
   const pctThresh2     = Math.round((thresh2 / timeLimit) * 100);
   const pctThresh3     = Math.round((thresh3 / timeLimit) * 100);
-
-  // Bar fill = posisi timeLeft relatif ke timeLimit
+const pctThresh1  = Math.round((thresh1 / timeLimit) * 100); 
   const barFillTarget  = Math.round((timeLeft / timeLimit) * 100);
 
-  const thresholds = [
-    { label: '0',              pct: 0,           starN: 1 },
-    { label: `${thresh2}s`,   pct: pctThresh2,  starN: 2 },
-    { label: `${thresh3}s`,   pct: pctThresh3,  starN: 3 },
-  ];
+ // SESUDAH — urutkan dari pct terkecil ke terbesar
+const thresholds = [
+  { label: `${thresh1}s`, pct: pctThresh1, starN: 1 },
+  { label: `${thresh2}s`, pct: pctThresh2, starN: 2 },
+  { label: `${thresh3}s`, pct: pctThresh3, starN: 3 },
+].sort((a, b) => a.pct - b.pct);
 
   useEffect(() => {
     // Fade out white flash overlay seamlessly from door animation
@@ -231,7 +237,7 @@ const t3 = setTimeout(() => setVisibleStars(3), 1200);
                 </div>
 
                 {/* Marker garis threshold */}
-                {thresholds.slice(1).map((t) => (
+                {thresholds.map((t) => (
                   <div key={t.label} style={{
                     position: 'absolute',
                     left: `${t.pct}%`, top: -3, bottom: -3,

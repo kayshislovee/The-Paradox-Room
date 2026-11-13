@@ -32,7 +32,6 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
   const screen                  = useGameStore((s) => s.screen);
 
   const [phase, setPhase]       = useState<Phase>('idle');
-  // Track whether the animation has finished so we keep the white overlay
   const [finished, setFinished] = useState(false);
   const [activePts, setActivePts] = useState(DEFAULT_PTS);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -40,13 +39,9 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
   const localLevel = LEVELS.find((l) => l.id === currentLevelId);
 
   useEffect(() => {
-    if (!triggerDoorAnimation) {
-      // Don't reset phase to idle here — let 'finished' state keep the overlay
-      return undefined;
-    }
+    if (!triggerDoorAnimation) return undefined;
     if (phase !== 'idle') return undefined;
 
-    // Simpan points ke STATE saat trigger aktif
     const doorPoints = (localLevel as any)?.exitDoorPoints as string | undefined;
     setActivePts(doorPoints ? parsePoints(doorPoints) : DEFAULT_PTS);
 
@@ -62,7 +57,6 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
     go(() => setPhase('burst'), 800);
     go(() => setPhase('white'), 1600);
     go(() => {
-      // Mark animation as finished but keep white overlay
       setPhase('done');
       setFinished(true);
       setTriggerDoorAnimation(false);
@@ -73,7 +67,6 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
     return () => timers.current.forEach(clearTimeout);
   }, [triggerDoorAnimation]);
 
-  // Reset everything only when screen actually leaves 'gameplay' (e.g. becomes 'win')
   useEffect(() => {
     if (finished && screen !== 'gameplay') {
       setPhase('idle');
@@ -81,10 +74,6 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
     }
   }, [finished, screen]);
 
-  
-
-  // Show the white overlay if the animation is finished (waiting for screen change)
-  // OR if a phase animation is actively playing
   if (phase === 'idle' && !finished) return null;
 
   const cx = activePts.reduce((s, p) => s + p.x, 0) / activePts.length;
@@ -98,10 +87,11 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
 
   return (
     <>
+      {/* 1. Ambient Blur di Luar Pintu */}
       <div style={{
         position: 'absolute', inset: 0,
         pointerEvents: 'none', zIndex: 10,
-        background: `radial-gradient(ellipse 30% 50% at ${cx}% ${cy}%,
+        background: `radial-gradient(ellipse 40% 60% at ${cx}% ${cy}%,
           rgba(255,240,200,${isGlow ? 0.4 : isBurst ? 0.9 : isWhite || isDone ? 1 : 0}) 0%,
           rgba(255,220,150,${isGlow ? 0.2 : isBurst ? 0.5 : isWhite || isDone ? 0.8 : 0}) 40%,
           transparent 70%)`,
@@ -109,10 +99,12 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
         transition: 'background 0.6s ease',
       }} />
 
+      {/* 2. Burst Cahaya (Dikunci Presisi Mengikuti Polygon Pintu) */}
       <div style={{
         position: 'absolute', inset: 0,
         pointerEvents: 'none', zIndex: 12,
         clipPath,
+        WebkitClipPath: clipPath,
         opacity: isGlow ? 0.7 : 1,
         transition: 'opacity 0.4s ease',
       }}>
@@ -123,14 +115,17 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
             rgba(255,240,180,${isGlow ? 0.6 : 0.95}) 30%,
             rgba(255,200,100,${isGlow ? 0.3 : 0.7}) 60%,
             transparent 100%)`,
-          transition: 'background 0.5s ease',
+          transform: isBurst || isWhite || isDone ? 'scale(1.2)' : 'scale(1)',
+          transition: 'transform 0.8s ease, background 0.5s ease',
         }} />
       </div>
 
+      {/* 3. Outer Edge / Shadow Pintu */}
       <div style={{
         position: 'absolute', inset: 0,
         pointerEvents: 'none', zIndex: 11,
         clipPath,
+        WebkitClipPath: clipPath,
       }}>
         <div style={{
           position: 'absolute', inset: 0,
@@ -143,31 +138,15 @@ export function DoorEscapeAnimation({ onComplete }: Props) {
         }} />
       </div>
 
-     {/* Burst — cahaya melebar smooth dari titik pintu */}
-{(isBurst || isWhite || isDone) && (
-  <div style={{
-    position: 'absolute', inset: 0,  // ← fixed bukan absolute
-    pointerEvents: 'none', zIndex: 13,
-    clipPath,
-    background: `radial-gradient(ellipse 60% 80% at ${cx}% ${cy}%,
-      rgba(255,255,255,${isWhite || isDone ? 1 : 0.5}) 0%,
-      rgba(255,250,220,${isWhite || isDone ? 1 : 0.3}) 40%,
-      rgba(255,240,180,${isWhite || isDone ? 0.8 : 0.1}) 70%,
-      transparent 100%)`,
-    transition: 'background 0.8s cubic-bezier(0.4, 0, 0.2, 1)',  // ← lebih smooth
-    mixBlendMode: 'screen',
-  }} />
-)}
-
-{/* White overlay full screen */}
-<div style={{
-  position: 'absolute', inset: 0,  // ← sudah fixed, pertahankan
-  background: 'radial-gradient(ellipse at center, #ffffff 0%, #fffdf0 100%)',  // ← gradient bukan flat white
-  opacity: (isWhite || isDone || finished) ? 1 : 0,
-  transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)',  // ← lebih smooth
-  pointerEvents: 'none',
-  zIndex: 14,
-}} />
+      {/* 4. White Overlay Transisi Akhir Fullscreen */}
+      <div style={{
+        position: 'fixed', inset: 0,
+        background: 'radial-gradient(ellipse at center, #ffffff 0%, #fffdf0 100%)',
+        opacity: (isWhite || isDone || finished) ? 1 : 0,
+        transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+        pointerEvents: 'none',
+        zIndex: 9999,
+      }} />
     </>
   );
 }

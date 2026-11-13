@@ -16,9 +16,9 @@ export function LoseScreen({ onStartLevel }: Props) {
   const [showContent, setShowContent] = useState(false);
   const [flashVisible, setFlashVisible] = useState(true);
 
-  // Ambil data level untuk menampilkan judul
+  // Ambil data level untuk menampilkan judul (dari API/admin, fallback lokal)
   const storeLevel = useGameStore((s) => s.levels.find((l) => l.id === currentLevelId));
-  const localLevel = LEVELS.find((l) => l.id === currentLevelId);
+  const localLevel = storeLevel ?? LEVELS.find((l) => l.id === currentLevelId);
   const level = storeLevel ?? localLevel;
 
   useEffect(() => {

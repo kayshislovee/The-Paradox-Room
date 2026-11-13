@@ -1,4 +1,5 @@
 import { useGameStore } from '../../store/gameStore';
+import { resolveAssetPath } from '../../lib/assetPath';
 import styles from './ZoomModal.module.css';
 
 interface Props { image: string; label: string; }
@@ -10,7 +11,7 @@ export function ZoomModal({ image, label }: Props) {
     <div className={styles.overlay} onClick={closeZoom}>
       <div className={styles.box} onClick={(e) => e.stopPropagation()}>
         <p className={styles.label}>{label}</p>
-        <img src={image} alt={label} className={styles.img} />
+        <img src={resolveAssetPath(image)} alt={label} className={styles.img} />
         <button className={styles.close} onClick={closeZoom}>✕ Tutup</button>
       </div>
     </div>

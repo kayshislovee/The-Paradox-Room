@@ -1,5 +1,6 @@
 import type { Level } from '../types/game.types';
 import { LEVEL_6 } from './level6';
+import { LEVEL_7 } from './level7';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  LEVEL 1 — "Lab Misterius"
@@ -16,13 +17,13 @@ const LEVEL_1: Level = {
   thumbnail: '',
   dialogMusic: '/audio/dialog_music.mp3',
   timeLimit: 480,
-  starThresholds: [400, 200, 60],
-   exitLightPos: { x: 30, y: 38 }, 
-   //exitDoorShape: { width: 5, height: 5 },
-   //exitDoorPoints: '49.3,27.4 49.6,57 51.3,60.7 59.9,61 59.7,27.2 61.7,22.4 61.1,21.7 53.8,21.9',
-   exitDoorPoints: '61.7,22.6 60,27.7 59.9,61 51.4,60.8 50,57.9 50,27.2 53.6,22.2',
+  starThresholds: [360, 200, 100],
+  exitLightPos: { x: 30, y: 38 },
+  //exitDoorShape: { width: 5, height: 5 },
+  //exitDoorPoints: '49.3,27.4 49.6,57 51.3,60.7 59.9,61 59.7,27.2 61.7,22.4 61.1,21.7 53.8,21.9',
+  exitDoorPoints: '61.7,22.6 60,27.7 59.9,61 51.4,60.8 50,57.9 50,27.2 53.6,22.2',
   characterAvatar: '/avatars/lab3.png',
-  characterName: 'Kayshii',
+  characterName: 'Ethan',
   hints: [
     '💡 Coba periksa layar komputer terlebih dahulu.',
     '💡 Perhatikan kode error dan clue yang tertera di komputer',
@@ -59,12 +60,12 @@ const LEVEL_1: Level = {
         {
           id: 'hs_lever_panel',
 
-          x: 60,
+          x: 66,
           y: 32,
-          width: 25,
-          height: 15,
+          width: 15,
+          height: 10,
           cursor: 'pointer',
-          image: '/objects/lever.png',
+          image: '/objects/panellever.png',
           action: {
             type: 'open_puzzle',
             puzzleId: 'puzzle_lever_pattern',
@@ -90,13 +91,13 @@ const LEVEL_1: Level = {
         },
       ],
     },
-      {
-    id: 'scene_lab_open',         // ← scene baru: pintu terbuka
-    label: 'Pintu Lab Terbuka',
-    backgroundImage: '/backgrounds/lab2.png',  // ← gambar baru
-    hidden:true,
-    hotspots: [],                     // kosong — tidak ada interaksi di sini
-  },
+    {
+      id: 'scene_lab_open',         // ← scene baru: pintu terbuka
+      label: 'Pintu Lab Terbuka',
+      backgroundImage: '/backgrounds/lab2.png',  // ← gambar baru
+      hidden: true,
+      hotspots: [],                     // kosong — tidak ada interaksi di sini
+    },
   ],
 
   items: [],
@@ -119,13 +120,13 @@ const LEVEL_1: Level = {
 
   introDialog: [
     {
-      character: 'Kayshii',
+      character: 'Ethan',
       avatar: '/avatars/lab2.png', // opsional
       text: 'huffttt...,magang disini benar benar melelahkann',
       side: 'left',
     },
     {
-      character: 'Kayshii',
+      character: 'Ethan',
       avatar: '/avatars/lab1.png', // opsional
       text: 'ehh,kenapa pintu labnya terkunci,padahal sudah jam pulang.pasti seseorang menguncinya',
       side: 'left',
@@ -153,19 +154,19 @@ const LEVEL_1: Level = {
       avatar: '/avatars/villain1.png',
     },
     {
-      character: 'Kayshii',
+      character: 'Ethan',
       avatar: '/avatars/lab3.png',
       text: 'cuih,belum tau aja skill ku',
       side: 'left',
     },
     {
-      character: 'Kayshii',
+      character: 'Ethan',
       avatar: '/avatars/lab3.png',
       text: 'ayo kita mulai',
       side: 'left',
     },
   ],
-   treasures: [
+  treasures: [
     {
       id: 'treasure_lab_1',
       x: 18.5, y: 24.6,
@@ -180,7 +181,7 @@ const LEVEL_1: Level = {
       image: '/treasures/ben10.png',
       achievementId: 'ach_lab_explorer',
     },
-   
+
   ],
   achievements: [
     {
@@ -208,7 +209,7 @@ const LEVEL_1: Level = {
       type: 'time',
       levelId: 'level_1',
     },
-     {
+    {
       id: 'ach_lab_nohint',
       title: 'Brainy Detective',
       description: 'Selesaikan Puzzle Lab Misterius tanpa menggunakan hint!',
@@ -228,9 +229,9 @@ const LEVEL_2: Level = {
   thumbnail: '',
   dialogMusic: '/audio/dialog_music.mp3',
   timeLimit: 480,
-  starThresholds: [360, 180, 30],
-   
-    exitDoorPoints: '45.7,23.3 45.5,63.2 58.1,63.4 58.1,23.7',
+  starThresholds: [360, 240, 120],
+
+  exitDoorPoints: '45.6,24.2 45.6,63.1 58.2,62.9 58.2,24',
   characterAvatar: '/avatars/school4.png',
   characterName: 'Ayla',
   hints: [
@@ -325,12 +326,12 @@ const LEVEL_2: Level = {
         // ── KEYPAD di sebelah pintu (puzzle utama) ───────────────────────────
         {
           id: 'hs_keypad',
-          x: 56,
+          x: 59,
           y: 30,
-          width: 15,
-          height: 18,
+          width: 10,
+          height: 15,
           cursor: 'pointer',
-          image: '/objects/codepanel.png',
+          image: '/objects/keypad2.png',
           action: {
             type: 'open_puzzle',
             puzzleId: 'puzzle_exit_keypad',
@@ -366,13 +367,13 @@ const LEVEL_2: Level = {
 
       ],
     },
-      {
-    id: 'scene_hallway_open',         // ← scene baru: pintu terbuka
-    label: 'Koridor Sekolah — Pintu Terbuka',
-    backgroundImage: '/backgrounds/school2.png',  // ← gambar baru
-    hidden:true,
-    hotspots: [],                     // kosong — tidak ada interaksi di sini
-  },
+    {
+      id: 'scene_hallway_open',         // ← scene baru: pintu terbuka
+      label: 'Koridor Sekolah — Pintu Terbuka',
+      backgroundImage: '/backgrounds/school2.png',  // ← gambar baru
+      hidden: true,
+      hotspots: [],                     // kosong — tidak ada interaksi di sini
+    },
   ],
 
   items: [],
@@ -438,7 +439,7 @@ const LEVEL_2: Level = {
       side: 'left',
     },
   ],
-   treasures: [
+  treasures: [
     {
       id: 'treasure_school_1',
       x: 13.4, y: 21,
@@ -481,7 +482,7 @@ const LEVEL_2: Level = {
       type: 'time',
       levelId: 'level_2',
     },
-     {
+    {
       id: 'ach_school_nohint',
       title: 'Brainy Detective',
       description: 'Selesaikan Puzzle Koridor Sekolah tanpa menggunakan hint!',
@@ -501,10 +502,10 @@ const LEVEL_3: Level = {
   thumbnail: '',
   timeLimit: 480,
   dialogMusic: '/audio/dialog_music.mp3',
-  starThresholds: [360, 180, 30],
-   exitLightPos: { x: 50, y: 42 }, 
-   exitDoorShape: { width: 14, height: 38 },
-   exitDoorPoints :'85.5,7.2 84.8,8.7 84.8,91 99.8,90.8 99.8,7.2',
+  starThresholds: [360, 240, 120],
+  exitLightPos: { x: 50, y: 42 },
+  exitDoorShape: { width: 14, height: 38 },
+  exitDoorPoints: '85.5,7.2 84.8,8.7 84.8,91 99.8,90.8 99.8,7.2',
   characterAvatar: '/avatars/perpus3.png',
   characterName: 'Vania',
   music: '/audio/level3_music.mp3',
@@ -583,13 +584,13 @@ const LEVEL_3: Level = {
         },
       ],
     },
-      {
-    id: 'scene_library_open',         // ← scene baru: pintu terbuka
-    label: 'Perpustakaan Pintu Terbuka',
-    backgroundImage: '/backgrounds/library2.png',  // ← gambar baru
-    hidden:true,
-    hotspots: [],                     // kosong — tidak ada interaksi di sini
-  },
+    {
+      id: 'scene_library_open',         // ← scene baru: pintu terbuka
+      label: 'Perpustakaan Pintu Terbuka',
+      backgroundImage: '/backgrounds/library2.png',  // ← gambar baru
+      hidden: true,
+      hotspots: [],                     // kosong — tidak ada interaksi di sini
+    },
   ],
 
   items: [],
@@ -606,7 +607,7 @@ const LEVEL_3: Level = {
     },
   ],
 
- introDialog: [
+  introDialog: [
     {
       character: 'Vania',
       avatarLeft: '/avatars/perpus3.png', // opsional
@@ -625,40 +626,40 @@ const LEVEL_3: Level = {
       text: 'NAHH,ciri cirnya mirip dengan ini,apakah dia penyebabnya?',
       side: 'left',
     },
-     {
+    {
       character: 'Vania',
       avatarLeft: '/avatars/perpus3.png', // opsional
       avatarRight: '/avatars/book.png', // opsional
-       avatarLeftStyle: {
-    bottom: -55,  // ← posisi vertical
-    left: -40,    // ← posisi horizontal
-    height: 750,  // ← ukuran
-  },
-  avatarRightStyle: {
-    bottom: 200, // ← berbeda dari kiri
-    right: 350,
-    height: 390,  // ← lebih kecil
-  },
+      avatarLeftStyle: {
+        bottom: -55,  // ← posisi vertical
+        left: -40,    // ← posisi horizontal
+        height: 750,  // ← ukuran
+      },
+      avatarRightStyle: {
+        bottom: 200, // ← berbeda dari kiri
+        right: 350,
+        height: 390,  // ← lebih kecil
+      },
       text: 'Dia bertopi dan berjas panjang, persis seperti yang terlihat di cctv',
-      
+
       side: 'left',
     },
-     {
+    {
       character: 'Vania',
       avatarLeft: '/avatars/perpus2.png', // opsional
       avatarRight: '/avatars/book.png', // opsional
-       avatarLeftStyle: {
-    bottom: -55,  // ← posisi vertical
-    left: -40,    // ← posisi horizontal
-    height: 750,  // ← ukuran
-  },
-  avatarRightStyle: {
-    bottom: 200, // ← berbeda dari kiri
-    right: 350,
-    height: 390,  // ← lebih kecil
-  },
+      avatarLeftStyle: {
+        bottom: -55,  // ← posisi vertical
+        left: -40,    // ← posisi horizontal
+        height: 750,  // ← ukuran
+      },
+      avatarRightStyle: {
+        bottom: 200, // ← berbeda dari kiri
+        right: 350,
+        height: 390,  // ← lebih kecil
+      },
       text: 'Disini juga banyak informasi mengenai dia,mungkin aku bisa memecahkan misteri ini',
-      
+
       side: 'left',
     },
     {
@@ -668,7 +669,7 @@ const LEVEL_3: Level = {
       isSystem: true,
       avatar: '/avatars/villain1.png',
     },
-     {
+    {
       character: 'Code Master',
       text: 'Kamu ternyata orang yang kepo yaa,aku suka itu HAHAHAHA',
       side: 'right',
@@ -688,14 +689,14 @@ const LEVEL_3: Level = {
       isSystem: true,
       avatar: '/avatars/villain1.png',
     },
-     {
+    {
       character: 'Vania',
       avatarLeft: '/avatars/perpus1.png', // opsional
       text: 'Tidak semudah itu CODE MASTER,AKU PASTI AKAN MENYELESAIKAN PUZZLE INI',
       side: 'left',
     },
   ],
-   treasures: [
+  treasures: [
     {
       id: 'treasure_library_1',
       x: 1, y: 50.2,
@@ -710,7 +711,7 @@ const LEVEL_3: Level = {
       image: '/treasures/bird.png',
       achievementId: 'ach_library_explorer',
     },
-    
+
   ],
   achievements: [
     {
@@ -758,10 +759,10 @@ const LEVEL_4: Level = {
   thumbnail: '',
   timeLimit: 480,
   dialogMusic: '/audio/dialog_music.mp3',
-  starThresholds: [360, 180, 30],
-  exitLightPos: { x: 50, y: 42 }, 
-  exitDoorPoints:'34.5,22.7 34.7,64.4 48.6,64.1 48.5,22.4',
-  characterAvatar: '/avatars/market1.png',
+  starThresholds: [360, 240, 120],
+  exitLightPos: { x: 50, y: 42 },
+ exitDoorPoints: '39.4,16.5 42.1,18.7 42.2,58.2 38.4,61.2 60.2,61 56.8,58.4 56.9,18.7 59.5,16.3',
+   characterAvatar: '/avatars/market1.png',
   characterName: 'Sunny',
   music: '/audio/level4_music.mp3',
   hints: [
@@ -812,13 +813,13 @@ const LEVEL_4: Level = {
         },
       ],
     },
-      {
-    id: 'scene_store_open',         // ← scene baru: pintu terbuka
-    label: 'Pintu Minimarket Terbuka',
-    backgroundImage: '/backgrounds/minimarket2.png',  // ← gambar baru
-    hidden:true,
-    hotspots: [],                     // kosong — tidak ada interaksi di sini
-  },
+    {
+      id: 'scene_store_open',         // ← scene baru: pintu terbuka
+      label: 'Pintu Minimarket Terbuka',
+      backgroundImage: '/backgrounds/minimarket2.png',  // ← gambar baru
+      hidden: true,
+      hotspots: [],                     // kosong — tidak ada interaksi di sini
+    },
   ],
 
   items: [],
@@ -827,14 +828,14 @@ const LEVEL_4: Level = {
   puzzles: [
     {
       id: 'puzzle_store_computer',
-      type: 'keypad',
+      type: 'computer',
       title: 'Komputer Kasir',
 
       answer: '755',
       maxDigits: 3,
       clueIds: [],
     },
-    
+
   ],
 
   introDialog: [
@@ -889,7 +890,7 @@ const LEVEL_4: Level = {
       isSystem: true,
     },
   ],
-   treasures: [
+  treasures: [
     {
       id: 'treasure_minimarket_1',
       x: -1.5, y: 5,
@@ -951,10 +952,10 @@ const LEVEL_5: Level = {
   thumbnail: '',
   dialogMusic: '/audio/dialog_music.mp3',
   timeLimit: 480,
-   exitLightPos: { x: 50, y: 42 },
-   exitDoorShape: { width: 14, height: 38 },
-   exitDoorPoints:'37.3,17.7 37.5,63.4 61.6,63.4 61.7,17.5',
-  starThresholds: [420, 240, 60],
+  exitLightPos: { x: 50, y: 42 },
+  exitDoorShape: { width: 14, height: 38 },
+  exitDoorPoints: '41,19.7 41,57.8 39.9,59.2 59,59 58.2,57.6 58.2,19.9',
+  starThresholds: [360, 240, 120],
   characterAvatar: '/avatars/anak2.png',
   characterName: 'Andi',
   music: '/audio/level5_music.mp3',
@@ -1036,13 +1037,13 @@ const LEVEL_5: Level = {
         },
       ],
     },
-      {
-    id: 'scene_toystore_open',         // ← scene baru: pintu terbuka
-    label: 'Pintu Toko Mainan Terbuka',
-    backgroundImage: '/backgrounds/toy2.png',  // ← gambar baru
-    hidden:true,
-    hotspots: [],                     // kosong — tidak ada interaksi di sini
-  },
+    {
+      id: 'scene_toystore_open',         // ← scene baru: pintu terbuka
+      label: 'Pintu Toko Mainan Terbuka',
+      backgroundImage: '/backgrounds/toy2.png',  // ← gambar baru
+      hidden: true,
+      hotspots: [],                     // kosong — tidak ada interaksi di sini
+    },
   ],
 
   items: [],
@@ -1051,7 +1052,7 @@ const LEVEL_5: Level = {
   puzzles: [
     {
       id: 'puzzle_toystore_door',
-      type: 'keypad',
+      type: 'computer',
       title: ' Komputer Kasir',
       answer: '5797',
       maxDigits: 4,
@@ -1118,7 +1119,7 @@ const LEVEL_5: Level = {
       side: 'left',
     },
   ],
-   treasures: [
+  treasures: [
     {
       id: 'treasure_toystore_1',
       x: 39.3, y: 50.1,
@@ -1133,7 +1134,7 @@ const LEVEL_5: Level = {
       image: '/treasures/simpsons.png',
       achievementId: 'ach_toystore_explorer',
     },
-   
+
   ],
   achievements: [
     {
@@ -1161,7 +1162,7 @@ const LEVEL_5: Level = {
       type: 'time',
       levelId: 'level_5',
     },
-     {
+    {
       id: 'ach_toystore_nohint',
       title: 'Brainy Detective',
       description: 'Selesaikan Puzzle Toko Mainan tanpa menggunakan hint!',
@@ -1174,4 +1175,17 @@ const LEVEL_5: Level = {
   exitPuzzleId: 'puzzle_toystore_door',
 };
 
-export const LEVELS: Level[] = [LEVEL_4, LEVEL_1, LEVEL_5, LEVEL_2, LEVEL_3,LEVEL_6];
+export const LEVELS: Level[] = [LEVEL_4, LEVEL_1, LEVEL_5, LEVEL_2, LEVEL_3, LEVEL_6, LEVEL_7];
+
+if (import.meta.hot) {
+  import.meta.hot.accept('./level7', (updatedModule) => {
+    const updatedLevel = updatedModule?.LEVEL_7;
+    if (!updatedLevel) return;
+
+    const levelIndex = LEVELS.findIndex((level) => level.id === updatedLevel.id);
+    if (levelIndex !== -1) {
+      LEVELS[levelIndex] = updatedLevel;
+      window.dispatchEvent(new Event('level-data-updated'));
+    }
+  });
+}

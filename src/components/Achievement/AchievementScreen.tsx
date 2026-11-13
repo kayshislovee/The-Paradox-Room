@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { MetalButton } from '../UI/MetalButton';
 import { LEVELS as HARDCODED_LEVELS } from '../../data/levels';
+import { looksLikeImagePath, resolveAssetPath } from '../../lib/assetPath';
 
 export function AchievementScreen() {
   const goTo = useGameStore((s) => s.goTo);
   const unlockedAchievements = useGameStore((s) => s.unlockedAchievements);
   const levelProgress = useGameStore((s) => s.levelProgress);
 
-  const allAchievements = HARDCODED_LEVELS.flatMap((l) => l.achievements ?? []);
-  const achievementsByLevel = HARDCODED_LEVELS
+  const storeLevels = useGameStore((s) => s.levels);
+  const allLevels = storeLevels.length > 0 && storeLevels.some((l) => l.achievements && l.achievements.length > 0) ? storeLevels : HARDCODED_LEVELS;
+  const allAchievements = allLevels.flatMap((l) => l.achievements ?? []);
+  const achievementsByLevel = allLevels
     .filter((l) => l.achievements && l.achievements.length > 0)
     .map((l) => ({
       levelId: l.id,
@@ -262,15 +265,15 @@ export function AchievementScreen() {
                 }}>
                   {/* Icon Bagian Kiri */}
                   <div style={{
-                    width: 48, height: 48, borderRadius: '50%',
+                    width: 80, height: 80, borderRadius: '50%',
                     background: isUnlocked ? '#1a1a1a' : '#2a2a2a',
                     border: `2px solid ${isUnlocked ? (ach.isGolden ? '#fbbf24' : '#e8d5b7') : '#4a4a4a'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0
                   }}>
                     {isUnlocked ? (
-                       ach.icon.endsWith('.png') ? (
-                         <img src={ach.icon} style={{ width: 28, height: 28, objectFit: 'contain' }} alt="icon" />
+                       looksLikeImagePath(ach.icon) ? (
+                         <img src={resolveAssetPath(ach.icon)} style={{ width: 64, height: 64, objectFit: 'contain' }} alt="icon" />
                        ) : (
                          <span style={{ fontSize: 20 }}>{ach.icon}</span>
                        )
@@ -288,7 +291,7 @@ export function AchievementScreen() {
                       letterSpacing: 1
                     }}>
                       {isUnlocked ? ach.title : '???' }
-                    </div>
+                    </div>  
                     <div style={{
                       color: isUnlocked ? '#a0a0a0' : '#444',
                       fontSize: 12,

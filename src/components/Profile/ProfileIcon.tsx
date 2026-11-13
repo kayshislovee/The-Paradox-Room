@@ -57,7 +57,9 @@ useEffect(() => {
       {/* Tooltip nama */}
       <div style={{
         position: 'fixed',
-        top: 64, left: 16,
+        top: 64, left: 55,
+        transform: 'translateX(-50%)',
+textAlign: 'center',
         background: 'rgba(15,12,32,0.9)',
         border: '1px solid rgba(200,184,154,0.15)',
         borderRadius: 6, padding: '4px 10px',

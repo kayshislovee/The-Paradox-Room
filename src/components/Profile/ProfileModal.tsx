@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { fetchProfile, updateProfile, uploadAvatar, ApiProfile } from '../../hooks/useapi';
 import { formatTime } from '../../hooks/useTimer';
-
+import { MetalButton } from '../UI/MetalButton';
 const LEVEL_LABELS: Record<string, string> = {
   level_1: 'Lab Misterius',
   level_2: 'Koridor Sekolah',
   level_3: 'Perpustakaan',
   level_4: 'Minimarket',
   level_5: 'Toko Mainan',
+  level_6: 'Comeback'
 };
 
 interface Props {
@@ -16,21 +17,23 @@ interface Props {
 }
 
 export function ProfileModal({ onClose }: Props) {
-  const token  = useGameStore((s) => s.token);
+  const token = useGameStore((s) => s.token);
   const logout = useGameStore((s) => s.logout);
   const setPlayer = useGameStore((s) => s.setPlayer);
-
-  const [profile, setProfile]     = useState<ApiProfile | null>(null);
-  const [loading, setLoading]     = useState(true);
-  const [editMode, setEditMode]   = useState(false);
-  const [username, setUsername]   = useState('');
-  const [bio, setBio]             = useState('');
-  const [saving, setSaving]       = useState(false);
-  const [error, setError]         = useState('');
+  const [profile, setProfile] = useState<ApiProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     fetchProfile(token)
       .then((p) => {
         setProfile(p);
@@ -100,6 +103,16 @@ export function ProfileModal({ onClose }: Props) {
 
         {loading ? (
           <div style={{ color: '#c8b89a', textAlign: 'center', padding: 40 }}>Memuat...</div>
+        ) : !token ? (
+          <div style={{ textAlign: 'center', padding: 40 }}>
+            <p style={{ color: '#c8b89a', marginBottom: 20 }}>
+              Login untuk melihat profil
+            </p>
+            <MetalButton
+              onClick={() => { logout(); onClose(); }}
+              label="LOGIN"
+            />
+          </div>
         ) : profile ? (
           <>
             {/* Avatar */}

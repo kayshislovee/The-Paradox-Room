@@ -4,6 +4,8 @@ import { MetalButton } from '../UI/MetalButton';
 import { playMusic } from '../../hooks/useMusic';
 import { HintToken } from '../HintToken/HintToken';
 import { useHintRefill } from '../../hooks/useHintRefill';
+import { SplashTransition } from '../UI/SplashTransition';
+import { useSFX } from '../../hooks/useSFX';
 
 type Phase = 'splash' | 'transitioning' | 'menu';
 
@@ -12,22 +14,29 @@ export function Splash() {
   const loadLevels = useGameStore((s) => s.loadLevels);
   const loadHintConfig = useGameStore((s) => s.loadHintConfig);
   const loadMyProgress = useGameStore((s) => s.loadMyProgress);
-  
+
   const [phase, setPhase] = useState<Phase>('splash');
   const [pressVisible, setPressVisible] = useState(false);
+
+  const { playNewGame } = useSFX();
+
+  const [bgImage, setBgImage] = useState('/backgrounds/bg2.png');
+
+  const [showTransition, setShowTransition] = useState(false);
+  const [pendingNav, setPendingNav] = useState<(() => void) | null>(null);
+
   useHintRefill();
 
-  // Fetch data dari API saat komponen mount
   useEffect(() => {
     loadLevels();
     loadHintConfig();
     loadMyProgress();
   }, []);
 
-  // Mulai musik saat pertama kali ada interaksi
   useEffect(() => {
     const startMusic = () => {
       playMusic('/audio/menu_music.mp3', 0.7);
+
       window.removeEventListener('click', startMusic);
       window.removeEventListener('keydown', startMusic);
       window.removeEventListener('touchstart', startMusic);
@@ -44,24 +53,34 @@ export function Splash() {
     };
   }, []);
 
-  // Animasi Press any button
   useEffect(() => {
     const t1 = setTimeout(() => setPressVisible(true), 1000);
+
     return () => clearTimeout(t1);
   }, []);
 
+  const triggerAnimatedNav = (action: () => void) => {
+    setBgImage('/backgrounds/bg3.png');
+    setPendingNav(() => action);
+    setShowTransition(true);
+  };
+
   const handlePress = () => {
     if (phase !== 'splash') return;
+
     playMusic('/audio/menu_music.mp3', 0.7);
+
     setPhase('transitioning');
     setPressVisible(false);
+
     setTimeout(() => {
       setPhase('menu');
-    }, 100); // Mempercepat transisi panel masuk
+    }, 150);
   };
 
   useEffect(() => {
     window.addEventListener('keydown', handlePress);
+
     return () => window.removeEventListener('keydown', handlePress);
   }, [phase]);
 
@@ -71,131 +90,310 @@ export function Splash() {
     <div
       onClick={handlePress}
       style={{
-        width: '100%', height: '100%',
-        // GANTI DENGAN ASSET BACKGROUND UTAMA ANDA
-        background: 'url(/backgrounds/bg2.png) center/cover no-repeat', 
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#0d0015',
+        background: `url(${bgImage}) center/cover no-repeat`,
+        transition: 'background 1.5s ease',
         display: 'flex',
         cursor: phase === 'splash' ? 'pointer' : 'default',
-        position: 'relative', overflow: 'hidden',
+        position: 'fixed',
+        inset: 0,
+        overflow: 'hidden',
         userSelect: 'none',
       }}
     >
-      {/* Overlay Gelap saat masih di phase splash */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: isMenu ? 'transparent' : 'rgba(0,0,0,0.6)',
-        transition: 'background 1s ease',
-        zIndex: 0,
-      }} />
-
-      {/* Press any button - Tengah Layar */}
-      {phase === 'splash' && (
-        <div style={{
+      {/* Dark overlay */}
+      <div
+        style={{
           position: 'absolute',
-          top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          fontFamily: "'IM Fell English SC', 'Georgia', serif",
-          fontSize: 24, color: '#e8d5b7', letterSpacing: 4,
-          opacity: pressVisible ? 1 : 0,
-          transition: 'opacity 0.4s ease',
-          animation: pressVisible ? 'pressGlow 2s ease-in-out infinite' : 'none',
-          textShadow: '0 0 10px rgba(200,184,154,0.5)',
+          inset: 0,
+          background:
+            'radial-gradient(ellipse at center, transparent 10%, rgba(0,0,0,0.7) 100%)',
           pointerEvents: 'none',
-          zIndex: 1,
-        }}>
-          press any button to enter
+          zIndex: 0,
+        }}
+      />
+
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: isMenu
+            ? 'transparent'
+            : 'rgba(0,0,0,0.4)',
+          backdropFilter: isMenu ? 'blur(0px)' : 'blur(3px)',
+          transition:
+            'background 1.2s ease, backdrop-filter 1.2s ease',
+          zIndex: 0,
+        }}
+      />
+
+      {/* PRESS ANY BUTTON */}
+      {phase === 'splash' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontFamily: "'IM Fell English SC', 'Georgia', serif",
+            fontSize: '2rem',
+            color: '#e8d5b7',
+            letterSpacing: 8,
+            opacity: pressVisible ? 1 : 0,
+            transition: 'opacity 0.5s ease',
+            animation: pressVisible
+              ? 'pressGlow 3s ease-in-out infinite'
+              : 'none',
+            textShadow:
+              '0 0 20px rgba(232,213,183,0.4), 0 0 40px rgba(0,0,0,0.8)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        >
+          PRESS ANY BUTTON TO ENTER
         </div>
       )}
 
-      {/* Panel Kanan (Kertas Perkamen) */}
-      <div style={{
-        position: 'absolute',
-        right: 0, top: 0, bottom: 0,
-        width: '42%', minWidth: '450px',
-        // GANTI DENGAN ASSET KERTAS PERKAMEN ANDA
-        background: 'url(/backgrounds/parchment_panel.png) left center/100% 100% no-repeat',
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center',
-        paddingTop: '8vh',
-        transform: isMenu ? 'translateX(0)' : 'translateX(100%)',
-        transition: 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)',
-        zIndex: 2,
-        boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
-      }}>
-        
-        {/* Kontainer Judul */}
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '6vh',
-          opacity: isMenu ? 1 : 0,
-          transform: isMenu ? 'translateY(0)' : 'translateY(-20px)',
-          transition: 'opacity 1s ease 0.5s, transform 1s ease 0.5s',
-        }}>
-          <div style={{
-            fontFamily: "'IM Fell English SC', 'Georgia', serif",
-            fontSize: 28, color: '#2b2b2b', letterSpacing: 4,
-            marginBottom: -10,
-          }}>
-            THE
+      {/* RIGHT MENU PANEL */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 0,
+          bottom: 0,
+
+          width: '42%',
+          height: '100%',
+
+          background: 'linear-gradient(270deg, rgba(10,10,15,0.85) 0%, rgba(10,10,15,0.4) 70%, transparent 100%)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+
+          borderLeft: '1px solid rgba(255,255,255,0.06)',
+
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+
+          paddingTop: '4vh',
+          paddingBottom: '4vh',
+
+          transform: isMenu
+            ? 'translateX(0)'
+            : 'translateX(100%)',
+
+          transition:
+            'transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
+
+          zIndex: 2,
+
+          boxShadow: '-20px 0 60px rgba(0,0,0,0.8)',
+        }}
+      >
+        {/* TITLE */}
+        <div
+          style={{
+            textAlign: 'center',
+            marginBottom: '6vh',
+
+            opacity: isMenu ? 1 : 0,
+
+            transform: isMenu
+              ? 'translateY(0)'
+              : 'translateY(-40px)',
+
+            transition:
+              'opacity 1.2s ease 0.3s, transform 1.2s ease 0.3s',
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "'Eczar', 'Georgia', serif",
+              fontSize: '2rem',
+              color: 'rgba(236,231,231,0.7)',
+              letterSpacing: 6,
+              marginBottom: -8,
+              textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+            }}
+          >
+            The
           </div>
-          <div style={{
-            fontFamily: "'Cinzel Decorative', 'Georgia', serif",
-            fontSize: 64, color: '#1a1a1a', fontWeight: 700,
-            letterSpacing: 2, lineHeight: 1,
-            textShadow: '1px 1px 2px rgba(255,255,255,0.3)',
-          }}>
+
+          <div
+            style={{
+              fontFamily: "'Eczar', 'Cinzel Decorative', serif",
+              fontSize: '5rem',
+              color: '#ece7e7f5',
+              fontWeight: 800,
+              letterSpacing: 5,
+              lineHeight: 1,
+              textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.4)',
+            }}
+          >
             PARADOX
           </div>
-          <div style={{
-            fontFamily: "'IM Fell English SC', 'Georgia', serif",
-            fontSize: 40, color: '#2b2b2b', letterSpacing: 6,
-            marginTop: -5,
-          }}>
+
+          <div
+            style={{
+              fontFamily: "'Eczar', 'Georgia', serif",
+              fontSize: '2.8rem',
+              color: '#ece7e7f5',
+              letterSpacing: 10,
+              marginTop: -4,
+              textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+            }}
+          >
             ROOM
           </div>
-          {/* Ornamen Garis Bawah Judul */}
-          <img src="/ui/title_ornament.png" alt="" style={{ width: '80%', marginTop: '10px' }} />
+
+          {/* Decorative divider */}
+          <div
+            style={{
+              width: '70%',
+              height: '1px',
+              margin: '20px auto 0 auto',
+              background:
+                'linear-gradient(90deg, transparent 0%, rgba(236,231,231,0.4) 30%, rgba(236,231,231,0.6) 50%, rgba(236,231,231,0.4) 70%, transparent 100%)',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                width: '8px',
+                height: '8px',
+                backgroundColor: '#ece7e7',
+                transform: 'rotate(45deg)',
+                boxShadow: '0 0 8px rgba(255,255,255,0.6)',
+              }}
+            />
+          </div>
         </div>
 
-        {/* Kontainer Tombol Menu */}
-        <div style={{
-          display: 'flex', flexDirection: 'column',
-          gap: 20, width: '70%', alignItems: 'flex-start',
-          opacity: isMenu ? 1 : 0,
-          transform: isMenu ? 'translateY(0)' : 'translateY(20px)',
-          transition: 'opacity 1s ease 0.7s, transform 1s ease 0.7s',
-          pointerEvents: isMenu ? 'auto' : 'none',
-        }}>
-          {/* Catatan: Anda mungkin perlu memodifikasi komponen <MetalButton> 
-              agar mendukung penempatan ikon di sebelah kiri teks dan background transparan 
-              sesuai dengan referensi gambar. */}
-          <MetalButton onClick={(e) => { e.stopPropagation(); goTo('level_select'); }} label="New Game" />
-          <MetalButton onClick={(e) => { e.stopPropagation(); goTo('achievements'); }} label="Continue" />
-          <MetalButton onClick={(e) => { e.stopPropagation(); goTo('settings'); }} label="Settings" />
-          <MetalButton onClick={(e) => { e.stopPropagation(); window.close(); }} label="Quit" />
-        </div>
+        {/* MENU BUTTONS */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '250px',
+            maxWidth: '75%',
+            gap: 14,
+            alignItems: 'stretch',
 
-        {/* Hint Token */}
-        {isMenu && (
-          <div style={{
-            position: 'absolute',
-            bottom: '5%',
-            right: '10%',
-            zIndex: 1,
             opacity: isMenu ? 1 : 0,
-            transition: 'opacity 1s ease 1s',
-          }}>
+
+            transform: isMenu
+              ? 'translateY(0)'
+              : 'translateY(40px)',
+
+            transition:
+              'opacity 1.2s ease 0.5s, transform 1.2s ease 0.5s',
+
+            pointerEvents: isMenu ? 'auto' : 'none',
+          }}
+        >
+          <MetalButton
+            onClick={(e) => {
+              e.stopPropagation();
+              playNewGame();
+              triggerAnimatedNav(() =>
+                goTo('level_select')
+              );
+            }}
+            label="START"
+          />
+
+          <MetalButton
+            onClick={(e) => {
+              e.stopPropagation();
+              goTo('lobby');
+            }}
+            label="MULTIPLAYER"
+          />
+
+          <MetalButton
+            onClick={(e) => {
+              e.stopPropagation();
+              goTo('achievements');
+            }}
+            label="ACHIEVEMENTS"
+          />
+
+          <MetalButton
+            onClick={(e) => {
+              e.stopPropagation();
+              goTo('treasures');
+            }}
+            label="TREASURES"
+          />
+
+          <MetalButton
+            onClick={(e) => {
+              e.stopPropagation();
+              goTo('settings');
+            }}
+            label="SETTINGS"
+          />
+
+          <MetalButton
+            onClick={(e) => {
+              e.stopPropagation();
+              window.close();
+            }}
+            label="QUIT"
+            danger
+          />
+        </div>
+
+        {/* HINT TOKEN */}
+        {isMenu && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '30px',
+              right: '30px',
+              zIndex: 10,
+              opacity: isMenu ? 1 : 0,
+              transition: 'opacity 1s ease 0.9s',
+            }}
+          >
             <HintToken />
           </div>
         )}
       </div>
 
+      {/* PRESS ANIMATION */}
       <style>{`
         @keyframes pressGlow {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 1; }
+          0%, 100% {
+            opacity: 0.4;
+            transform: translate(-50%, -50%) scale(0.98);
+          }
+          50% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.03);
+          }
         }
       `}</style>
+
+      {/* TRANSITION */}
+      {showTransition && (
+        <SplashTransition
+          trigger={showTransition}
+          polygonPoints="31.8,85.8 37.6,81.1 37.6,29.1 32.9,25.1 51,24.4 47.2,29.6 47.2,81.3 51.7,86"
+          onDone={() => {
+            setShowTransition(false);
+            pendingNav?.();
+            setPendingNav(null);
+          }}
+        />
+      )}
     </div>
   );
 }

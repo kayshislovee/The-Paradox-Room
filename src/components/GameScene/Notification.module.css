@@ -8,10 +8,12 @@
   font-size: 0.95rem;
   font-family: 'Segoe UI', sans-serif;
   font-weight: 500;
-  z-index: 300;
+  z-index: 12000;
+  pointer-events: none;
   animation: slideUp 0.3s ease;
   max-width: 500px;
   text-align: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
 }
 
 .info    { background: #1e3a5f; color: #93c5fd; border: 1px solid #2563eb; }
